@@ -1,0 +1,138 @@
+<template>
+  <div class="select-wrapper">
+
+    <div class="select-card">
+
+      <h2 class="title">入力する日付を選択してください</h2>
+
+      <div class="radio-group">
+
+        <label class="radio-item">
+          <input type="radio" value="20" v-model="selected" />
+          <span>20日</span>
+        </label>
+
+        <label class="radio-item">
+          <input type="radio" value="25" v-model="selected" />
+          <span>25日</span>
+        </label>
+
+        <label class="radio-item">
+          <input type="radio" value="28" v-model="selected" />
+          <span>28日</span>
+        </label>
+
+        <label class="radio-item">
+          <input type="radio" value="ALL" v-model="selected" />
+          <span>ALL</span>
+        </label>
+
+      </div>
+
+      <button class="next-btn" @click="goNext">
+        次へ
+      </button>
+
+    </div>
+
+  </div>
+</template>
+
+<script setup>
+import { ref } from "vue"
+import { useRouter } from "vue-router"
+
+const router = useRouter()
+const selected = ref("ALL")
+
+const sname = localStorage.getItem("pref")
+
+const goNext = () => {
+  if (selected.value === "ALL") {
+    /*router.push("/grid?mode=all")*/
+    router.push({path: "/grid",query: {mode: selected.value,sname: sname}})
+  } else {
+    if (selected.value === "20") {
+      router.push({path: "/grid",query: {mode: selected.value,sname: sname}})
+    } else {
+        if (selected.value === "25") {
+            router.push({path: "/grid",query: {mode: selected.value,sname: sname}})
+        } else {
+            if (selected.value === "28") {
+                router.push({path: "/grid",query: {mode: selected.value,sname: sname}})
+            } else {
+                alert(selected.value + "日はまだ未対応（例）")
+            }
+        }
+    }
+  }
+}
+</script>
+
+<style scoped>
+.select-wrapper {
+  background: #eef3ff;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.select-card {
+  width: 480px;
+  background: #fff;
+  padding: 35px 40px;
+  border-radius: 18px;
+  box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+}
+
+.title {
+  margin: 0 0 20px 0;
+  font-size: 22px;
+  color: #1f3a8a;
+  text-align: center;
+}
+
+.radio-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.radio-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid #c9d8ff;
+  border-radius: 10px;
+  background: #f7f9ff;
+  cursor: pointer;
+}
+
+.radio-item:hover {
+  background: #eaf0ff;
+}
+
+.radio-item input {
+  transform: scale(1.2);
+  margin-right: 8px;
+}
+
+.next-btn {
+  width: 100%;
+  padding: 12px;
+  background: #2563eb;
+  border: none;
+  color: white;
+  font-size: 17px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.next-btn:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+</style>
