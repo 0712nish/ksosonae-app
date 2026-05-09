@@ -93,7 +93,7 @@
                 >
                   <option v-for="u in unitOptions" :key="u">{{ u }}</option>
                 </select>
-
+                
                 <!-- 本 -->
                 <input
                   v-model="row.quantities[q.date].hon_value"
@@ -296,7 +296,8 @@ function moveNext(r, c) {
       }
     }
 
-    if (isEditableCell(nc)) {
+    /*if (isEditableCell(nc)) {*/
+    if (isMovableCell(rows.value[nr], nc)) {
       break
     }
   }
@@ -322,6 +323,7 @@ function movePrev(r, c) {
     }
 
     if (isEditableCell(nc)) {
+    /*if (isMovableCell(rows.value[nr], nc)) {*/
       break
     }
   }
@@ -477,6 +479,50 @@ function isEditableCell(c) {
   }
 
   return isEditable(date)
+}
+
+function isMovableCell(row, c) {
+
+  // 編集不可日は移動対象外
+  if (!isEditableCell(c)) {
+    return false
+  }
+
+  // 区別
+  if (c === 0) return true
+
+  // 品目
+  if (c === 1) return true
+
+  // 数量部分
+  const idx = c - 2
+
+  if (idx < 0) {
+    return false
+  }
+
+  const inner = idx % 6
+
+  /*
+    0 ml_value
+    1 ml_unit
+    2 hon_value
+    3 hon_unit
+    4 hako_value
+    5 hako_unit
+  */
+
+  // 野菜・果物・お米
+  if (
+    ["野菜", "果物", "お米"].includes(row.kubetsu)
+  ) {
+    // ml と hako を飛ばす
+    if ([0,1,4,5].includes(inner)) {
+      return false
+    }
+  }
+
+  return true
 }
 
 onMounted(async () => {
@@ -714,12 +760,11 @@ select:focus {
   background: #8cffd3;
 }
 
-/*
 input:disabled,
 select:disabled {
-  background: #f3f3f3;
+  /*background: #f3f3f3;*/
   color: #999;
   cursor: not-allowed;
 }
-*/
+
 </style>
