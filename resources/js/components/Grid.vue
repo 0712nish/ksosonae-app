@@ -1,165 +1,181 @@
 <template>
   <div class="grid">
-   <div class="table-wrap">
-    <table>
+    <div class="content-area">
+      <h1 class="report-title">
+        感謝祭お供え報告書
+      </h1>
+      <div class="report-subtitle">
+        所属【　{{ sname }}　】　{{ mode === "ALL" ? "全日分編集" : mode + "日締切分編集" }}
+      </div>
+      <div class="table-wrap">
+        <table>
+          <colgroup>
+            <col class="col-no">
+            <col class="col-kubetsu">
+            <col class="col-hinmoku">
 
-      <colgroup>
-        <col class="col-no">
-        <col class="col-kubetsu">
-        <col class="col-hinmoku">
-
-        <col
-          v-for="q in quantityColumns"
-          :key="q.date"
-          class="col-qty"
-        >
-      </colgroup>
-
-      <thead>
-        <tr>
-          <th rowspan="2" class="no-header">No</th>
-          <th rowspan="2" class="kubetsu-header">区別</th>
-          <th rowspan="2" class="hinmoku-header">品目</th>
-          <th :colspan="quantityColumns.length">数量</th>
-        </tr>
-
-        <tr>
-          <template v-for="q in quantityColumns" :key="q.date">
-            <th>{{ q.date }} 締切<br>午前中</th>
-          </template>
-        </tr>
-
-
-      </thead>
-
-      <draggable
-        v-model="rows"
-        item-key="no"
-        tag="tbody"
-        handle=".no-cell"
-        @end="renumberRows"
-      >
-        <template #item="{ element: row, index: r }">
-          <tr>
-          <td
-            class="no-cell"
-            @contextmenu.prevent="openContextMenu($event, r)"
-          >
-            {{ row.no }}
-          </td>
-          <!-- 区別 -->
-          <td class="kubetsu-cell">
-            <select
-              class="kubetsu-select"
-              v-model="row.kubetsu"
-              @keydown="handleKey($event, r, 0)"
-              :ref="el => setRef(el, r, 0)"
+            <col
+              v-for="q in quantityColumns"
+              :key="q.date"
+              class="col-qty"
             >
-              <option value=""></option>
-              <option v-for="opt in kubetsuOptions" :key="opt">{{ opt }}</option>
-            </select>
-          </td>
+          </colgroup>
 
-          <!-- 品目 -->
-          <td class="hinmoku-cell">
-            <input
-              class="hinmoku-input"
-              v-model="row.hinmoku"
-              @keydown="handleKey($event, r, 1)"
-              :ref="el => setRef(el, r, 1)"
-            />
-          </td>
+          <thead>
+            <tr>
+              <th rowspan="2" class="no-header">No</th>
+              <th rowspan="2" class="kubetsu-header">区別</th>
+              <th rowspan="2" class="hinmoku-header">品目</th>
+              <th :colspan="quantityColumns.length">数量</th>
+            </tr>
 
-          <!-- 数量 -->
-          <template v-for="(q, qi) in quantityColumns" :key="q.date">
-            <td class="qty-cell">
-              <!-- 上段 -->
-              <div class="row-top">
-                <!-- ml -->
-                <input
-                  v-model="row.quantities[q.date].ml_value"
-                  :disabled="!isEditable(q.date)"
-                  :class="{ requiredCell: isRequired(row, 'ml_value') && isEditable(q.date) }"
-                  @keydown="handleKey($event, r, getColIndex(qi, 0))"
-                  :ref="el => setRef(el, r, getColIndex(qi, 0))"
-                />
+            <tr>
+              <template v-for="q in quantityColumns" :key="q.date">
+                <th>{{ q.date }} 締切<br>午前中</th>
+              </template>
+            </tr>
+
+
+          </thead>
+
+          <draggable
+            v-model="rows"
+            item-key="no"
+            tag="tbody"
+            handle=".no-cell"
+            @end="renumberRows"
+          >
+            <template #item="{ element: row, index: r }">
+              <tr>
+              <td
+                class="no-cell"
+                @contextmenu.prevent="openContextMenu($event, r)"
+              >
+                {{ row.no }}
+              </td>
+              <!-- 区別 -->
+              <td class="kubetsu-cell">
                 <select
-                  v-model="row.quantities[q.date].ml_unit"
-                  :disabled="!isEditable(q.date)"
-                  class="unit"
-                  :class="{ requiredCell: isRequired(row, 'ml_value') && isEditable(q.date) }"
-                  @keydown="handleKey($event, r, getColIndex(qi, 0, true))"
-                  :ref="el => setRef(el, r, getColIndex(qi, 0, true))"
+                  class="kubetsu-select"
+                  v-model="row.kubetsu"
+                  @keydown="handleKey($event, r, 0)"
+                  :ref="el => setRef(el, r, 0)"
                 >
-                  <option v-for="u in unitOptions" :key="u">{{ u }}</option>
+                  <option value=""></option>
+                  <option v-for="opt in kubetsuOptions" :key="opt">{{ opt }}</option>
                 </select>
-                
-                <!-- 本 -->
+              </td>
+
+              <!-- 品目 -->
+              <td class="hinmoku-cell">
                 <input
-                  v-model="row.quantities[q.date].hon_value"
-                  :disabled="!isEditable(q.date)"
-                  :class="{ requiredCell: isRequired(row, 'hon_value') && isEditable(q.date) }"
-                  @keydown="handleKey($event, r, getColIndex(qi, 1))"
-                  :ref="el => setRef(el, r, getColIndex(qi, 1))"
+                  class="hinmoku-input"
+                  v-model="row.hinmoku"
+                  @keydown="handleKey($event, r, 1)"
+                  :ref="el => setRef(el, r, 1)"
                 />
-                <select
-                  v-model="row.quantities[q.date].hon_unit"
-                  :disabled="!isEditable(q.date)"
-                  class="unit"
-                  :class="{ requiredCell: isRequired(row, 'hon_unit') && isEditable(q.date) }"
-                  @keydown="handleKey($event, r, getColIndex(qi, 1, true))"
-                  :ref="el => setRef(el, r, getColIndex(qi, 1, true))"
-                >
-                  <option v-for="u in unitOptions" :key="u">{{ u }}</option>
-                </select>
-              </div>
+              </td>
 
-              <!-- 下段 -->
-              <div class="row-bottom">
-                <!-- 箱 -->
-                <input
-                  v-model="row.quantities[q.date].hako_value"
-                  :disabled="!isEditable(q.date)"
-                  :class="{ requiredCell: isRequired(row, 'hako_value') && isEditable(q.date) }"
-                  @keydown="handleKey($event, r, getColIndex(qi, 2))"
-                  :ref="el => setRef(el, r, getColIndex(qi, 2))"
-                />
-                <select
-                  v-model="row.quantities[q.date].hako_unit"
-                  :disabled="!isEditable(q.date)"
-                  class="unit"
-                  :class="{ requiredCell: isRequired(row, 'hako_value') && isEditable(q.date) }"
-                  @keydown="handleKey($event, r, getColIndex(qi, 2, true))"
-                  :ref="el => setRef(el, r, getColIndex(qi, 2, true))"
-                >
-                  <option v-for="u in unitOptions" :key="u">{{ u }}</option>
-                </select>
-              </div>
-            </td>
-          </template>
-          </tr>
-        </template>
-      </draggable>
-    </table>
+              <!-- 数量 -->
+              <template v-for="(q, qi) in quantityColumns" :key="q.date">
+                <td class="qty-cell">
+                  <!-- 上段 -->
+                  <div class="row-top">
+                    <!-- ml -->
+                    <input
+                      v-model="row.quantities[q.date].ml_value"
+                      :disabled="!isEditable(q.date)"
+                      :class="{ requiredCell: isRequired(row, 'ml_value') && isEditable(q.date) }"
+                      @keydown="handleKey($event, r, getColIndex(qi, 0))"
+                      :ref="el => setRef(el, r, getColIndex(qi, 0))"
+                    />
+                    <select
+                      v-model="row.quantities[q.date].ml_unit"
+                      :disabled="!isEditable(q.date)"
+                      class="unit"
+                      :class="{ requiredCell: isRequired(row, 'ml_unit') && isEditable(q.date) }"
+                      @keydown="handleKey($event, r, getColIndex(qi, 0, true))"
+                      :ref="el => setRef(el, r, getColIndex(qi, 0, true))"
+                    >
+                      <option v-for="u in unitOptions1" :key="u">{{ u }}</option>
+                    </select>
+                    
+                    <!-- 本 -->
+                    <input
+                      v-model="row.quantities[q.date].hon_value"
+                      :disabled="!isEditable(q.date)"
+                      :class="{ requiredCell: isRequired(row, 'hon_value') && isEditable(q.date) }"
+                      @keydown="handleKey($event, r, getColIndex(qi, 1))"
+                      :ref="el => setRef(el, r, getColIndex(qi, 1))"
+                    />
+                    <select
+                      v-model="row.quantities[q.date].hon_unit"
+                      :disabled="!isEditable(q.date)"
+                      class="unit"
+                      :class="{ requiredCell: isRequired(row, 'hon_unit') && isEditable(q.date) }"
+                      @keydown="handleKey($event, r, getColIndex(qi, 1, true))"
+                      :ref="el => setRef(el, r, getColIndex(qi, 1, true))"
+                    >
+                      <option v-for="u in unitOptions2" :key="u">{{ u }}</option>
+                    </select>
+                  </div>
 
-<div
-  v-if="menu.visible"
-  class="context-menu"
-  :style="{
-    top: menu.y + 'px',
-    left: menu.x + 'px'
-  }"
->
-  <div class="menu-item" @click="insertRow(menu.rowIndex)">
-    行挿入
-  </div>
+                  <!-- 下段 -->
+                  <div class="row-bottom">
+                    <!-- 変更なし -->
+                    <button
+                      v-if="q.date !== '20日'"
+                      class="copy-btn"
+                      :disabled="!isEditable(q.date)"
+                      @click="copyPreviousDay(row, q.date)"
+                    >
+                      変更なし
+                    </button>
+                    <!-- 箱 -->
+                    <input
+                      v-model="row.quantities[q.date].hako_value"
+                      :disabled="!isEditable(q.date)"
+                      :class="{ requiredCell: isRequired(row, 'hako_value') && isEditable(q.date) }"
+                      @keydown="handleKey($event, r, getColIndex(qi, 2))"
+                      :ref="el => setRef(el, r, getColIndex(qi, 2))"
+                    />
+                    <select
+                      v-model="row.quantities[q.date].hako_unit"
+                      :disabled="!isEditable(q.date)"
+                      class="unit"
+                      :class="{ requiredCell: isRequired(row, 'hako_unit') && isEditable(q.date) }"
+                      @keydown="handleKey($event, r, getColIndex(qi, 2, true))"
+                      :ref="el => setRef(el, r, getColIndex(qi, 2, true))"
+                    >
+                      <option v-for="u in unitOptions3" :key="u">{{ u }}</option>
+                    </select>
+                  </div>
+                </td>
+              </template>
+              </tr>
+            </template>
+          </draggable>
+        </table>
 
-  <div class="menu-item danger" @click="confirmDelete(menu.rowIndex)">
-    行削除
-  </div>
-</div>
+        <div
+          v-if="menu.visible"
+          class="context-menu"
+          :style="{
+            top: menu.y + 'px',
+            left: menu.x + 'px'
+          }"
+        >
+          <div class="menu-item" @click="insertRow(menu.rowIndex)">
+            行挿入
+          </div>
 
-   </div> 
+          <div class="menu-item danger" @click="confirmDelete(menu.rowIndex)">
+            行削除
+          </div>
+        </div>
+
+      </div>
+    </div> 
   </div>
 </template>
 
@@ -184,7 +200,9 @@ const quantityColumns = [
 ]
 
 const kubetsuOptions = ["野菜", "果物", "特産", "お米"]
-const unitOptions = ["ml", "本", "箱", "kg", "g","袋","個"]
+const unitOptions1 = ["g", "kg", "ml", "L", "本","個", "袋", "箱", "g入 ✕", "kg入 ✕", "ml入 ✕", "L入 ✕", "本入 ✕","個入 ✕", "袋入 ✕", "箱入 ✕"]
+const unitOptions2 = ["g", "kg", "ml", "L", "本","個", "袋", "箱"]
+const unitOptions3 = ["箱", "袋","個"]
 
 const menu = ref({
   visible: false,
@@ -192,6 +210,7 @@ const menu = ref({
   y: 0,
   rowIndex: null
 })
+
 function openContextMenu(e, rowIndex) {
   menu.value.visible = true
   menu.value.x = e.clientX
@@ -231,7 +250,7 @@ function createRow(no) {
       ml_value: "",
       ml_unit: "",
       hon_value: "",
-      hon_unit: "kg",
+      hon_unit: "",
       hako_value: "",
       hako_unit: "",
     }
@@ -489,10 +508,11 @@ function isMovableCell(row, c) {
   }
 
   // 区別
-  if (c === 0) return true
-
+  //if (c === 0) return true
+  if (c === 0) return !row.kubetsu
   // 品目
-  if (c === 1) return true
+  //if (c === 1) return true
+  if (c === 1) return !row.hinmoku
 
   // 数量部分
   const idx = c - 2
@@ -525,6 +545,27 @@ function isMovableCell(row, c) {
   return true
 }
 
+function copyPreviousDay(row, targetDate) {
+
+  let sourceDate = ""
+
+  if (targetDate === "25日") {
+    sourceDate = "20日"
+  }
+
+  if (targetDate === "28日") {
+    sourceDate = "25日"
+  }
+
+  if (!sourceDate) {
+    return
+  }
+
+  row.quantities[targetDate] = {
+    ...row.quantities[sourceDate]
+  }
+}
+
 onMounted(async () => {
   const sname = localStorage.getItem("pref")
   /*const year = new Date().getFullYear()*/
@@ -538,6 +579,12 @@ onMounted(async () => {
   )
 
   setRowsFromDB(res.data)
+
+    // 初期カーソル
+  nextTick(() => {
+    focusCell(0, 0)
+  })
+  
 })
 
 window.addEventListener("click", () => {
@@ -562,7 +609,9 @@ window.addEventListener("click", () => {
 }
 
 table {
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
+
   table-layout: fixed;
   width: max-content;
   display: inline-table;
@@ -579,8 +628,22 @@ td {
   padding: 0;
 }
 
-th {
+/* ===== sticky header ===== */
+
+thead th {
+  position: sticky;
   background: #eee;
+}
+
+thead tr:first-child th {
+  top: 0;
+  z-index: 20;
+  height: 40px;
+}
+
+thead tr:nth-child(2) th {
+  top: 40px;
+  z-index: 19;
 }
 
 /* ===== colgroup固定 ===== */
@@ -641,7 +704,7 @@ select {
 /* 必須 */
 input.requiredCell,
 select.requiredCell {
-  background-color: #f8fc03 !important;
+  background-color: #fcfdbf !important;
 }
 
 /* select */
@@ -651,7 +714,7 @@ select {
 
   border: none;
   margin: 0;
-  padding: 4px;
+  padding: 8px;
 
   box-sizing: border-box;
 
@@ -661,9 +724,10 @@ select {
 }
 
 .kubetsu-select {
-  width: 70px;
-  min-width: 70px;
-  max-width: 70px;
+  width: 78px;
+  min-width: 78px;
+  max-width: 78px;
+  text-align: center;
 }
 
 /* ===== 品目 ===== */
@@ -672,22 +736,24 @@ select {
   width: 230px;
   min-width: 230px;
   max-width: 230px;
-
   text-align: left;
   box-sizing: border-box;
 }
 
 /* ===== 数量レイアウト ===== */
 
-.row-top,
+.row-top {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px dashed #ccc;
+}
+
 .row-bottom {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.row-top {
-  border-bottom: 1px dashed #ccc;
+  position: relative; /* 見た目は通常配置のまま、absolute(.copy-btn内) の基準点になる */
 }
 
 /* ===== input ===== */
@@ -695,7 +761,7 @@ select {
 input {
   width: 50px;
   border: none;
-  padding: 4px;
+  padding: 5px;
   text-align: right;
   box-sizing: border-box;
 }
@@ -763,6 +829,52 @@ select:focus {
 input:disabled,
 select:disabled {
   /*background: #f3f3f3;*/
+  color: #999;
+  cursor: not-allowed;
+}
+
+.content-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.report-title {
+  text-align: center;
+  font-size: 32px;
+  font-weight: bold;
+  letter-spacing: 4px;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.report-subtitle {
+  width: 100%;
+  text-align: left;
+  font-size: 25px;
+  font-weight: bold;
+  color: #020080;
+  margin-bottom: 18px;
+  letter-spacing: 1px;
+}
+
+.copy-btn {
+  position: absolute; /* 通常の配置ルールから外して、好きな位置へ置く */
+  left: 2px;
+  font-size: 11px;
+  padding: 2px 6px;
+  border: 1px solid #bbb;
+  background: #f5f5f5;
+  cursor: pointer;
+  white-space: nowrap;
+  /*margin-right: 21px;*/
+}
+
+.copy-btn:hover:not(:disabled) {
+  background: #e6f0ff;
+}
+
+.copy-btn:disabled {
   color: #999;
   cursor: not-allowed;
 }
