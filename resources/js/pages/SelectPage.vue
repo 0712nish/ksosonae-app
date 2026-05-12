@@ -46,26 +46,18 @@ const router = useRouter()
 const selected = ref("ALL")
 
 const sname = localStorage.getItem("pref")
+const shozokuid = localStorage.getItem("shozokuid")
 
 const goNext = () => {
-  if (selected.value === "ALL") {
-    /*router.push("/grid?mode=all")*/
-    router.push({path: "/grid",query: {mode: selected.value,sname: sname}})
-  } else {
-    if (selected.value === "20") {
-      router.push({path: "/grid",query: {mode: selected.value,sname: sname}})
-    } else {
-        if (selected.value === "25") {
-            router.push({path: "/grid",query: {mode: selected.value,sname: sname}})
-        } else {
-            if (selected.value === "28") {
-                router.push({path: "/grid",query: {mode: selected.value,sname: sname}})
-            } else {
-                alert(selected.value + "日はまだ未対応（例）")
-            }
-        }
+
+  router.push({
+    path: "/grid",
+    query: {
+      mode: selected.value,
+      sname: sname,
+      shozokuid: shozokuid
     }
-  }
+  })
 }
 </script>
 

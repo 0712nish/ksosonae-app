@@ -34,6 +34,7 @@
 <script setup>
 import { ref } from "vue"
 import { useRouter } from "vue-router"
+import axios from "axios"
 
 const router = useRouter()
 
@@ -54,7 +55,7 @@ const pref = ref("")
 const password = ref("")
 const error = ref("")
 
-const login = () => {
+const login = async () => {
   if (!pref.value) {
     error.value = "都道府県を選択してください"
     return
@@ -66,6 +67,21 @@ const login = () => {
   }
 
   localStorage.setItem("loggedIn", "1")
+
+  const res = await axios.get(
+    "/api/shozoku",
+    {
+      params: {
+        sname: pref.value
+      }
+    }
+  )
+
+  localStorage.setItem(
+    "shozokuid",
+    res.data.no
+  )
+
   localStorage.setItem("pref", pref.value)
 
   router.push("/select")

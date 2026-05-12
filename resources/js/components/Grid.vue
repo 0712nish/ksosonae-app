@@ -43,7 +43,7 @@
             item-key="no"
             tag="tbody"
             handle=".no-cell"
-            @end="renumberRows"
+            @end="handleDragEnd"
           >
             <template #item="{ element: row, index: r }">
               <tr>
@@ -60,6 +60,7 @@
                   v-model="row.kubetsu"
                   @keydown="handleKey($event, r, 0)"
                   :ref="el => setRef(el, r, 0)"
+                  @blur="saveRow(row)"
                 >
                   <option value=""></option>
                   <option v-for="opt in kubetsuOptions" :key="opt">{{ opt }}</option>
@@ -73,6 +74,7 @@
                   v-model="row.hinmoku"
                   @keydown="handleKey($event, r, 1)"
                   :ref="el => setRef(el, r, 1)"
+                  @blur="saveRow(row)"
                 />
               </td>
 
@@ -88,6 +90,7 @@
                       :class="{ requiredCell: isRequired(row, 'ml_value') && isEditable(q.date) }"
                       @keydown="handleKey($event, r, getColIndex(qi, 0))"
                       :ref="el => setRef(el, r, getColIndex(qi, 0))"
+                      @blur="saveRow(row)"
                     />
                     <select
                       v-model="row.quantities[q.date].ml_unit"
@@ -96,6 +99,7 @@
                       :class="{ requiredCell: isRequired(row, 'ml_unit') && isEditable(q.date) }"
                       @keydown="handleKey($event, r, getColIndex(qi, 0, true))"
                       :ref="el => setRef(el, r, getColIndex(qi, 0, true))"
+                      @blur="saveRow(row)"
                     >
                       <option v-for="u in unitOptions1" :key="u">{{ u }}</option>
                     </select>
@@ -107,6 +111,7 @@
                       :class="{ requiredCell: isRequired(row, 'hon_value') && isEditable(q.date) }"
                       @keydown="handleKey($event, r, getColIndex(qi, 1))"
                       :ref="el => setRef(el, r, getColIndex(qi, 1))"
+                      @blur="saveRow(row)"
                     />
                     <select
                       v-model="row.quantities[q.date].hon_unit"
@@ -115,6 +120,7 @@
                       :class="{ requiredCell: isRequired(row, 'hon_unit') && isEditable(q.date) }"
                       @keydown="handleKey($event, r, getColIndex(qi, 1, true))"
                       :ref="el => setRef(el, r, getColIndex(qi, 1, true))"
+                      @blur="saveRow(row)"
                     >
                       <option v-for="u in unitOptions2" :key="u">{{ u }}</option>
                     </select>
@@ -138,6 +144,7 @@
                       :class="{ requiredCell: isRequired(row, 'hako_value') && isEditable(q.date) }"
                       @keydown="handleKey($event, r, getColIndex(qi, 2))"
                       :ref="el => setRef(el, r, getColIndex(qi, 2))"
+                      @blur="saveRow(row)"
                     />
                     <select
                       v-model="row.quantities[q.date].hako_unit"
@@ -146,6 +153,7 @@
                       :class="{ requiredCell: isRequired(row, 'hako_unit') && isEditable(q.date) }"
                       @keydown="handleKey($event, r, getColIndex(qi, 2, true))"
                       :ref="el => setRef(el, r, getColIndex(qi, 2, true))"
+                      @blur="saveRow(row)"
                     >
                       <option v-for="u in unitOptions3" :key="u">{{ u }}</option>
                     </select>
@@ -191,6 +199,8 @@ const route = useRoute()
 
 const sname = route.query.sname
 const mode = route.query.mode
+/*const shozokuid = route.query.shozokuid*/
+const shozokuid = localStorage.getItem("shozokuid")
 
 /* ===== 定義 ===== */
 const quantityColumns = [
@@ -217,28 +227,52 @@ function openContextMenu(e, rowIndex) {
   menu.value.y = e.clientY
   menu.value.rowIndex = rowIndex
 }
-function insertRow(index) {
+async function insertRow(index) {
   rows.value.splice(index, 0, createRow(index + 1))
 
   renumberRows()
 
+    for (const row of rows.value) {
+      await saveRow(row)
+    }
+
   menu.value.visible = false
 }
-function confirmDelete(index) {
+async function confirmDelete(index) {
+
   menu.value.visible = false
 
   if (!confirm((index + 1) + "行目を削除しますか？")) {
     return
   }
 
+  const deletedNo = rows.value[index].no
+
   rows.value.splice(index, 1)
 
+  await deleteRowDB(deletedNo)
+
   renumberRows()
+
+  for (const row of rows.value) {
+    await saveRow(row)
+  }
 }
 function renumberRows() {
   rows.value.forEach((row, i) => {
     row.no = i + 1
   })
+}
+async function deleteRowDB(no) {
+
+  await axios.post(
+    "/api/osonae/delete",
+    {
+      shozokuid,
+      year: 2025,
+      no
+    }
+  )
 }
 
 /* ===== 行生成 ===== */
@@ -563,6 +597,43 @@ function copyPreviousDay(row, targetDate) {
 
   row.quantities[targetDate] = {
     ...row.quantities[sourceDate]
+  }
+
+  saveRow(row)
+}
+
+async function saveRow(row) {
+
+  try {
+
+    await axios.post(
+      "/api/osonae/save",
+      {
+        shozokuid,
+        year: 2025,
+
+        no: row.no,
+        kubetsu: row.kubetsu,
+        hinmoku: row.hinmoku,
+
+        quantities: row.quantities
+      }
+    )
+
+  } catch (e) {
+
+    console.log(e.response?.data)
+
+    alert("保存失敗")
+  }
+}
+
+async function handleDragEnd() {
+
+  renumberRows()
+
+  for (const row of rows.value) {
+    await saveRow(row)
   }
 }
 
