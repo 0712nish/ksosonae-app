@@ -210,7 +210,7 @@ const quantityColumns = [
 ]
 
 const kubetsuOptions = ["野菜", "果物", "特産", "お米"]
-const unitOptions1 = ["g", "kg", "ml", "L", "本","個", "袋", "箱", "g入 ✕", "kg入 ✕", "ml入 ✕", "L入 ✕", "本入 ✕","個入 ✕", "袋入 ✕", "箱入 ✕"]
+const unitOptions1 = ["g", "kg", "ml", "L", "本","個", "袋", "箱", "g入", "kg入", "ml入", "L入", "本入","個入", "袋入", "箱入"]
 const unitOptions2 = ["g", "kg", "ml", "L", "本","個", "袋", "箱"]
 const unitOptions3 = ["箱", "袋","個"]
 
@@ -227,17 +227,43 @@ function openContextMenu(e, rowIndex) {
   menu.value.y = e.clientY
   menu.value.rowIndex = rowIndex
 }
+
 async function insertRow(index) {
   rows.value.splice(index, 0, createRow(index + 1))
 
   renumberRows()
 
-    for (const row of rows.value) {
-      await saveRow(row)
-    }
+  for (const row of rows.value) {
+    await saveRow(row)
+  }
 
   menu.value.visible = false
 }
+/*
+async function insertRow(index) {
+
+  menu.value.visible = false
+
+  // 後ろから no 更新
+  for (let i = rows.value.length - 1; i >= index; i--) {
+
+    rows.value[i].no = rows.value[i].no + 1
+
+    await saveRow(rows.value[i])
+  }
+
+  // 新規行追加
+  const newRow = createRow(index + 1)
+
+  rows.value.splice(index, 0, newRow)
+
+  renumberRows()
+
+  // 新規保存
+  await saveRow(newRow)
+}
+*/
+
 async function confirmDelete(index) {
 
   menu.value.visible = false
@@ -258,6 +284,7 @@ async function confirmDelete(index) {
     await saveRow(row)
   }
 }
+
 function renumberRows() {
   rows.value.forEach((row, i) => {
     row.no = i + 1
@@ -604,6 +631,11 @@ function copyPreviousDay(row, targetDate) {
 
 async function saveRow(row) {
 
+  // 未入力行は保存しない
+  if (!row.kubetsu || !row.hinmoku) {
+    return
+  }
+
   try {
 
     await axios.post(
@@ -623,9 +655,22 @@ async function saveRow(row) {
   } catch (e) {
 
     console.log(e.response?.data)
+    console.log(row)
 
     alert("保存失敗")
   }
+}
+
+async function saveAllRows() {
+
+  await axios.post(
+    "/api/osonae/replaceAll",
+    {
+      shozokuid,
+      year: 2025,
+      rows: rows.value
+    }
+  )
 }
 
 async function handleDragEnd() {
@@ -635,6 +680,7 @@ async function handleDragEnd() {
   for (const row of rows.value) {
     await saveRow(row)
   }
+ 
 }
 
 onMounted(async () => {
