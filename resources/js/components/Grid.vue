@@ -40,7 +40,7 @@
 
           <draggable
             v-model="rows"
-            item-key="no"
+            item-key="autono"
             tag="tbody"
             handle=".no-cell"
             @end="handleDragEnd"
@@ -272,11 +272,13 @@ async function confirmDelete(index) {
     return
   }
 
-  const deletedNo = rows.value[index].no
+  //const deletedNo = rows.value[index].no
+  const autono = rows.value[index].autono
 
   rows.value.splice(index, 1)
 
-  await deleteRowDB(deletedNo)
+  //await deleteRowDB(deletedNo)
+  await deleteRowDB(autono)
 
   renumberRows()
 
@@ -290,14 +292,15 @@ function renumberRows() {
     row.no = i + 1
   })
 }
-async function deleteRowDB(no) {
+async function deleteRowDB(autono) {
 
   await axios.post(
     "/api/osonae/delete",
     {
-      shozokuid,
-      year: 2025,
-      no
+      autono
+      //shozokuid,
+      //year: 2025,
+      //no
     }
   )
 }
@@ -318,6 +321,7 @@ function createRow(no) {
   })
 
   return {
+    autono: null,
     no,
     kubetsu: "",
     hinmoku: "",
@@ -474,6 +478,7 @@ function handleKey(e, r, c) {
 function setRowsFromDB(data) {
   rows.value = data.map(d => {
     return {
+      autono: d.autono,
       no: d.no,
       kubetsu: d.oname,
       hinmoku: d.hinmoku,
@@ -638,9 +643,11 @@ async function saveRow(row) {
 
   try {
 
-    await axios.post(
+    const res = await axios.post(
       "/api/osonae/save",
       {
+        autono: row.autono,
+
         shozokuid,
         year: 2025,
 
@@ -651,6 +658,8 @@ async function saveRow(row) {
         quantities: row.quantities
       }
     )
+    // INSERT後に autono を保持
+    row.autono = res.data.autono
 
   } catch (e) {
 
