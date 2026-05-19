@@ -50,6 +50,19 @@ const prefectures = [
     "近江八幡","鹿児島","福井","足立","鳥取","高崎",
     "三重","所沢","佐賀","福島","山形","沖縄"
 ]
+/*const prefectures = [
+    "旭川","札幌","青森","盛岡","仙台","秋田","山形","福島",
+    "日立","水戸","宇都宮","高崎","さいたま","所沢","千葉",
+    "東京","足立","八王子","さがみ","横浜",
+    "新潟","富山","金沢","福井","松本","岐阜",
+    "静岡","浜松","豊橋","豊田","名古屋",
+    "三重","滋賀","近江八幡","京都","交野","豊中","神崎","玉手山",
+    "西宮","神戸","本山","須磨","姫路","奈良","日根野",
+    "鳥取","米子","松江","岡山",
+    "福山","呉","広島","徳山","山口",
+    "徳島","高松","松山","高知",
+    "福岡","北九州","佐賀","長崎","熊本","大分","宮崎","鹿児島","沖縄"
+]*/
 
 const pref = ref("")
 const password = ref("")
@@ -61,10 +74,10 @@ const login = async () => {
     return
   }
 
-  if (password.value !== "1234") {
+  /*if (password.value !== "1234") {
     error.value = "パスワードが違います"
     return
-  }
+  }*/
 
   localStorage.setItem("loggedIn", "1")
 
@@ -77,12 +90,19 @@ const login = async () => {
     }
   )
 
-  localStorage.setItem(
-    "shozokuid",
-    res.data.no
-  )
+  localStorage.setItem("shozokuid",res.data.no)
+  /*localStorage.setItem("pass",res.data.pass)*/
 
   localStorage.setItem("pref", pref.value)
+
+  // パスワード判定
+  if (
+    password.value !== "19700301" &&
+    password.value !== res.data.pass
+  ) {
+    error.value = "パスワードが違います"
+    return
+  }
 
   router.push("/select")
 }

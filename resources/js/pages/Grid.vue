@@ -3,10 +3,11 @@
     <div class="content-area">
       <h1 class="report-title">
         感謝祭お供え報告書
-      </h1>
+      </h1>      
       <div class="report-subtitle">
         所属【　{{ sname }}　】　{{ mode === "ALL" ? "全日分編集" : mode + "日締切分編集" }}
       </div>
+      <button @click="printTable">印刷</button>
       <div class="table-wrap">
         <table>
           <colgroup>
@@ -191,11 +192,12 @@
 import axios from "axios"
 import { onMounted } from "vue"
 import { ref, nextTick } from "vue"
-
-import { useRoute } from "vue-router"
+import { useRoute, useRouter } from "vue-router"
+/*import { useRoute } from "vue-router"*/
 import draggable from "vuedraggable"
 
 const route = useRoute()
+const router = useRouter()
 
 const sname = route.query.sname
 const mode = route.query.mode
@@ -680,6 +682,16 @@ async function saveAllRows() {
       rows: rows.value
     }
   )
+}
+
+function printTable() {
+
+  localStorage.setItem(
+    "printRows",
+    JSON.stringify(rows.value)
+  )
+
+  router.push("/print")
 }
 
 async function handleDragEnd() {
