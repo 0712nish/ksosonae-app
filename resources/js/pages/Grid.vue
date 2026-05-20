@@ -85,7 +85,7 @@
                   <!-- 上段 -->
                   <div class="row-top">
                     <!-- ml -->
-                    <input
+                    <input type="number"
                       v-model="row.quantities[q.date].ml_value"
                       :disabled="!isEditable(q.date)"
                       :class="{ requiredCell: isRequired(row, 'ml_value') && isEditable(q.date) }"
@@ -106,7 +106,7 @@
                     </select>
                     
                     <!-- 本 -->
-                    <input
+                    <input type="number"
                       v-model="row.quantities[q.date].hon_value"
                       :disabled="!isEditable(q.date)"
                       :class="{ requiredCell: isRequired(row, 'hon_value') && isEditable(q.date) }"
@@ -139,7 +139,7 @@
                       変更なし
                     </button>
                     <!-- 箱 -->
-                    <input
+                    <input type="number"
                       v-model="row.quantities[q.date].hako_value"
                       :disabled="!isEditable(q.date)"
                       :class="{ requiredCell: isRequired(row, 'hako_value') && isEditable(q.date) }"
@@ -440,11 +440,44 @@ function handleKey(e, r, c) {
   const tag = e.target.tagName?.toLowerCase()
   const isSelect = tag === "select"
 
-  if (e.key === "Enter") {
+  /*if (e.key === "Enter") {
     e.preventDefault()
     e.shiftKey ? movePrev(r, c) : moveNext(r, c)
-  }
+  }*/
+  if (e.key === "Enter") {
 
+    const value = e.target.value
+
+    const idx = c - 2
+
+    let isNumberColumn = false
+
+    if (idx >= 0) {
+
+      const inner = idx % 6
+
+      isNumberColumn = [0, 2, 4].includes(inner)
+    }
+
+    if (isNumberColumn && !validateCell(value)) {
+
+      alert("数字を入力してください")
+
+      nextTick(() => {
+        e.target.focus()
+        e.target.select()
+      })
+
+      return
+    }
+
+    e.preventDefault()
+
+    e.shiftKey
+      ? movePrev(r, c)
+      : moveNext(r, c)
+  }
+  
   if (e.key === "Tab") {
     e.preventDefault()
     e.shiftKey ? movePrev(r, c) : moveNext(r, c)
@@ -634,6 +667,19 @@ function copyPreviousDay(row, targetDate) {
   }
 
   saveRow(row)
+}
+
+function isNumber(val) {
+
+  if (val === "" || val === null) {
+    return true
+  }
+
+  return !isNaN(val)
+}
+function validateCell(value) {
+
+  return isNumber(value)
 }
 
 async function saveRow(row) {
