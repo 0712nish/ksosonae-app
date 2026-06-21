@@ -8,12 +8,14 @@ import Main25App from "./pages/Main25App.vue"
 import Main28App from "./pages/Main28App.vue"*/
 import Grid from "./pages/Grid.vue"
 import Print from "./pages/Print.vue"
+import RiceGrid from "./pages/RiceGrid.vue"
 
 const routes = [
   { path: "/login", name: "login", component: LoginPage },
   { path: "/select", name: "select", component: SelectPage },
   { path: "/grid", name: "grid", component: Grid },
   { path: "/print", name: "print", component: Print },
+  { path: "/ricegrid", name: "ricegrid", component: RiceGrid },
   /*{ path: "/app", name: "app", component: MainApp },
   { path: "/app20", name: "app20", component: Main20App },
   { path: "/app25", name: "app25", component: Main25App },

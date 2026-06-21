@@ -2,7 +2,23 @@
   <div class="select-wrapper">
 
     <div class="select-card">
+      <h2 class="title">お米 or 野菜を選択してください</h2>
 
+      <div class="radio-group">
+
+        <label class="radio-item">
+          <input type="radio" value="1" v-model="selected" />
+          <span>お米</span>
+        </label>
+
+        <label class="radio-item">
+          <input type="radio" value="2" v-model="selected" />
+          <span>野菜,果物,特産品</span>
+        </label>
+
+      </div>
+
+<!--
       <h2 class="title">入力する日付を選択してください</h2>
 
       <div class="radio-group">
@@ -28,7 +44,7 @@
         </label>
 
       </div>
-
+-->
       <button class="next-btn" @click="goNext">
         次へ
       </button>
@@ -50,14 +66,30 @@ const shozokuid = localStorage.getItem("shozokuid")
 
 const goNext = () => {
 
-  router.push({
-    path: "/grid",
-    query: {
-      mode: selected.value,
-      sname: sname,
-      shozokuid: shozokuid
-    }
-  })
+  if (selected.value === "1") {
+
+    router.push({
+      path: "/ricegrid",
+      query: {
+        sname: sname,
+        shozokuid: shozokuid
+      }
+    })
+
+  } else {
+
+    router.push({
+      path: "/grid",
+      query: {
+        // mode: selected.value,
+        mode: "ALL",
+        sname: sname,
+        shozokuid: shozokuid
+      }
+    })
+
+  }
+
 }
 </script>
 

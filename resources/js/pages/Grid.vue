@@ -1,13 +1,22 @@
 <template>
   <div class="grid">
     <div class="content-area">
-      <h1 class="report-title">
-        感謝祭お供え報告書
-      </h1>      
-      <div class="report-subtitle">
-        所属【　{{ sname }}　】　{{ mode === "ALL" ? "全日分編集" : mode + "日締切分編集" }}
+      <div class="header-area">
+        <div class="title-area">
+          <h1 class="report-title">感謝祭お供え報告書</h1>      
+          <div class="report-subtitle">
+            所属【　{{ sname }}　】　{{ mode === "ALL" ? "全日分編集" : mode + "日締切分編集" }}
+          </div>
+        </div>
+        <button class="print-btn" @click="printTable">印刷</button>
       </div>
-      <button @click="printTable">印刷</button>
+
+      <div class="save-info">
+        最終更新 {{ lastSavedAt }}
+      </div>
+      <div class="report-subtitle rice-title">
+        ◆野菜、果物、特産品
+      </div>
       <div class="table-wrap">
         <table>
           <colgroup>
@@ -203,6 +212,9 @@ const sname = route.query.sname
 const mode = route.query.mode
 /*const shozokuid = route.query.shozokuid*/
 const shozokuid = localStorage.getItem("shozokuid")
+
+// 最終保存日時
+const lastSavedAt = ref(localStorage.getItem("lastSavedAt") || "")
 
 /* ===== 定義 ===== */
 const quantityColumns = [
@@ -709,6 +721,9 @@ async function saveRow(row) {
     // INSERT後に autono を保持
     row.autono = res.data.autono
 
+    lastSavedAt.value = new Date().toLocaleString("ja-JP")
+    localStorage.setItem("lastSavedAt",lastSavedAt.value)
+
   } catch (e) {
 
     console.log(e.response?.data)
@@ -763,8 +778,12 @@ onMounted(async () => {
   )
 
   setRowsFromDB(res.data)
+  //追加0608
+  if (res.data.length > 0) {
+    lastSavedAt.value = res.data[0].updatedt
+  }
 
-    // 初期カーソル
+  // 初期カーソル
   nextTick(() => {
     focusCell(0, 0)
   })
@@ -1020,7 +1039,7 @@ select:disabled {
 .content-area {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
 }
 
 .report-title {
@@ -1061,6 +1080,49 @@ select:disabled {
 .copy-btn:disabled {
   color: #999;
   cursor: not-allowed;
+}
+
+.print-btn {
+  padding: 4px 12px;
+
+  background: #f5f5f5;
+  color: #000;
+
+  border: 1px solid #bbb;
+  border-radius: 4px;
+
+  font-size: 13px;
+  font-weight: normal;
+
+  cursor: pointer;
+
+  box-shadow: none;
+}
+
+.print-btn:hover {
+  background: #eaeaea;
+}
+
+.print-btn:active {
+  transform: translateY(0);
+}
+
+.header-area {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.title-area {
+  flex: 1;
+}
+
+.save-info {
+  text-align: right;
+  font-size: 11px;
+  color: #777;
+  margin-bottom: 2px;
 }
 
 </style>

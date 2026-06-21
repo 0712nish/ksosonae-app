@@ -70,7 +70,7 @@ const error = ref("")
 
 const login = async () => {
   if (!pref.value) {
-    error.value = "都道府県を選択してください"
+    error.value = "拠点名を選択してください"
     return
   }
 
