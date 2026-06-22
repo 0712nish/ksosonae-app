@@ -211,4 +211,43 @@ class OsonaeController extends Controller
         ]);
     }*/
 
+    // ★追加
+    public function riceIndex(Request $request)
+    {
+        $data = DB::table('osonaericedata')
+            ->where('shozokuid', $request->shozokuid)
+            ->where('year', $request->year)
+            ->first();
+
+        return response()->json($data);
+    }
+
+    // ★追加
+    public function riceSave(Request $request)
+    {
+        DB::table('osonaericedata')->updateOrInsert(
+            [
+                'shozokuid' => $request->shozokuid,
+                'year'      => $request->year,
+            ],
+            [
+                'tawara1' => $request->tawara1,
+                'tawara2' => $request->tawara2,
+                'tawara3' => $request->tawara3,
+                'tawara4' => $request->tawara4,
+
+                'fukuro1' => $request->fukuro1,
+                'fukuro2' => $request->fukuro2,
+                'fukuro3' => $request->fukuro3,
+                'fukuro4' => $request->fukuro4,
+
+                'updatedt' => now(),
+            ]
+        );
+
+        return response()->json([
+            'updatedt' => now()
+        ]);
+    }
+
 }

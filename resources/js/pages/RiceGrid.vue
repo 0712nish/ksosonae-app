@@ -23,97 +23,182 @@
       ◆お米
     </div>
 
-    <table class="rice-table">
+<table class="rice-table">
 
-      <tr>
-        <th>うるち</th>
-        <th>数量</th>
-        <th>もち</th>
-        <th>数量</th>
-        <th>左記以外×数量</th>
-        <th>左記以外×数量</th>
-      </tr>
+  <tr>
+    <th>うるち</th>
+    <th>数量</th>
 
-      <tr>
-        <td>俵(60kg)</td>
+    <th>もち</th>
+    <th>数量</th>
 
-        <td>
-          <input
-            type="number"
-            v-model="rice.uruchi_tawara"
-          >
-        </td>
+    <th>左記以外×数量</th>
+    <th>左記以外×数量</th>
+  </tr>
 
-        <td>俵(60kg)</td>
+  <tr>
+    <td>俵(60kg)</td>
 
-        <td>
-          <input
-            type="number"
-            v-model="rice.mochi_tawara"
-          >
-        </td>
+    <td class="input-cell">
+      <input
+        type="number"
+        v-model="rice.tawara1"
+        @blur="saveRice"
+      >
+    </td>
 
-        <td></td>
+    <td>俵(60kg)</td>
 
-        <td>
-          <input
-            type="number"
-            v-model="rice.other_tawara"
-          >
-        </td>
-      </tr>
+    <td class="input-cell">
+      <input
+        type="number"
+        v-model="rice.tawara2"
+        @blur="saveRice"
+      >
+    </td>
 
-      <tr>
-        <td>袋(30kg)</td>
+    <td>
+      <input
+        type="text"
+        maxlength="30"
+        v-model="rice.tawara3"
+        @blur="saveRice"
+      >
+    </td>
 
-        <td>
-          <input
-            type="number"
-            v-model="rice.uruchi_fukuro"
-          >
-        </td>
+    <td class="input-cell">
+      <input
+        type="text"
+        maxlength="30"
+        v-model="rice.tawara4"
+        @blur="saveRice"
+      >
+    </td>
+  </tr>
 
-        <td>袋(30kg)</td>
+  <tr>
+    <td>袋(30kg)</td>
 
-        <td>
-          <input
-            type="number"
-            v-model="rice.mochi_fukuro"
-          >
-        </td>
+    <td class="input-cell">
+      <input
+        type="number"
+        v-model="rice.fukuro1"
+        @blur="saveRice"
+      >
+    </td>
 
-        <td></td>
+    <td>袋(30kg)</td>
 
-        <td>
-          <input
-            type="number"
-            v-model="rice.other_fukuro"
-          >
-        </td>
-      </tr>
+    <td class="input-cell">
+      <input
+        type="number"
+        v-model="rice.fukuro2"
+        @blur="saveRice"
+      >
+    </td>
 
-    </table>
+    <td>
+      <input
+        type="text"
+        maxlength="30"
+        v-model="rice.fukuro3"
+        @blur="saveRice"
+      >
+    </td>
+
+    <td class="input-cell">
+      <input
+        type="text"
+        maxlength="30"
+        v-model="rice.fukuro4"
+        @blur="saveRice"
+      >
+    </td>
+  </tr>
+
+</table>
 
   </div>
 </template>
 
 <script setup>
-import { reactive, ref } from "vue"
+import axios from "axios"
+import { reactive, ref, onMounted } from "vue"
 
 const sname = localStorage.getItem("pref")
+const shozokuid = localStorage.getItem("shozokuid")
+const year = 2025
 
 const lastSavedAt = ref("")
 
 const rice = reactive({
-  uruchi_tawara: "",
-  uruchi_fukuro: "",
+  tawara1: "",
+  tawara2: "",
+  tawara3: "",
+  tawara4: "",
 
-  mochi_tawara: "",
-  mochi_fukuro: "",
-
-  other_tawara: "",
-  other_fukuro: ""
+  fukuro1: "",
+  fukuro2: "",
+  fukuro3: "",
+  fukuro4: ""
 })
+
+async function loadRice() {
+
+  const res = await axios.get(
+    "/api/osonaerice",
+    {
+      params: {
+        shozokuid,
+        year
+      }
+    }
+  )
+
+  if (!res.data) {
+    return
+  }
+
+  rice.tawara1 = res.data.tawara1 ?? ""
+  rice.tawara2 = res.data.tawara2 ?? ""
+  rice.tawara3 = res.data.tawara3 ?? ""
+  rice.tawara4 = res.data.tawara4 ?? ""
+
+  rice.fukuro1 = res.data.fukuro1 ?? ""
+  rice.fukuro2 = res.data.fukuro2 ?? ""
+  rice.fukuro3 = res.data.fukuro3 ?? ""
+  rice.fukuro4 = res.data.fukuro4 ?? ""
+
+  lastSavedAt.value = res.data.updatedt ?? ""
+}
+
+async function saveRice() {
+
+  const res = await axios.post(
+    "/api/osonaerice/save",
+    {
+      shozokuid,
+      year,
+
+      tawara1: rice.tawara1,
+      tawara2: rice.tawara2,
+      tawara3: rice.tawara3,
+      tawara4: rice.tawara4,
+
+      fukuro1: rice.fukuro1,
+      fukuro2: rice.fukuro2,
+      fukuro3: rice.fukuro3,
+      fukuro4: rice.fukuro4
+    }
+  )
+
+  lastSavedAt.value = res.data.updatedt
+}
+
+onMounted(async () => {
+  await loadRice()
+})
+
 </script>
 
 <style scoped>
@@ -186,8 +271,8 @@ const rice = reactive({
 
 .rice-table td {
   height: 80px;
-  vertical-align: top;
-  padding: 8px;
+  vertical-align: middle;
+  text-align: center;
 }
 
 .rice-table input {
@@ -198,6 +283,18 @@ const rice = reactive({
 .rice-title {
   margin-top: 20px;
   margin-bottom: 10px;
+}
+
+.rice-table input[type="text"] {
+  width: 200px;
+  display: block;
+  margin: 0 auto;
+}
+
+.rice-table input[type="number"] {
+  width: 80px;
+  display: block;
+  margin: 0 auto;
 }
 
 </style>
