@@ -95,6 +95,13 @@
                   <div class="row-top">
                     <!-- ml -->
                     <input type="number"
+                      min="0"
+                      @input="e => {
+                        if (e.target.value < 0) {
+                          e.target.value = 0
+                          row.quantities[q.date].ml_value = 0
+                        }
+                      }"
                       v-model="row.quantities[q.date].ml_value"
                       :disabled="!isEditable(q.date)"
                       :class="{ requiredCell: isRequired(row, 'ml_value') && isEditable(q.date) }"
@@ -116,6 +123,13 @@
                     
                     <!-- 本 -->
                     <input type="number"
+                      min="0"
+                      @input="e => {
+                        if (e.target.value < 0) {
+                          e.target.value = 0
+                          row.quantities[q.date].hon_value = 0
+                        }
+                      }"
                       v-model="row.quantities[q.date].hon_value"
                       :disabled="!isEditable(q.date)"
                       :class="{ requiredCell: isRequired(row, 'hon_value') && isEditable(q.date) }"
@@ -149,6 +163,13 @@
                     </button>
                     <!-- 箱 -->
                     <input type="number"
+                      min="0"
+                      @input="e => {
+                        if (e.target.value < 0) {
+                          e.target.value = 0
+                          row.quantities[q.date].hako_value = 0
+                        }
+                      }"                      
                       v-model="row.quantities[q.date].hako_value"
                       :disabled="!isEditable(q.date)"
                       :class="{ requiredCell: isRequired(row, 'hako_value') && isEditable(q.date) }"
@@ -204,6 +225,8 @@ import { ref, nextTick } from "vue"
 import { useRoute, useRouter } from "vue-router"
 /*import { useRoute } from "vue-router"*/
 import draggable from "vuedraggable"
+
+const editTable = ref([])
 
 const route = useRoute()
 const router = useRouter()
@@ -584,12 +607,47 @@ function isRequired(row, field) {
   return map[row.kubetsu]?.includes(field)
 }
 
+function normalize(d) {
+  return new Date(d)
+}
+
 function isEditable(date) {
-  if (mode === "ALL") {
-    return true
+  //if (mode === "ALL") {
+  //  return true
+  //}
+  //return mode === date.replace("日", "")
+
+  //if (mode === "ALL") {
+  //  return true
+  //}
+
+  if (editTable.value.length < 3) {
+    return false
   }
 
-  return mode === date.replace("日", "")
+  const today = new Date()
+
+  const d1 = new normalize(editTable.value[0].editdt)
+  const d2 = new normalize(editTable.value[1].editdt)
+  const d3 = new normalize(editTable.value[2].editdt)
+  const d4 = new normalize(editTable.value[3].editdt)
+  const d5 = new normalize(editTable.value[4].editdt)
+  const d6 = new normalize(editTable.value[5].editdt)
+
+  if (date === "20日") {
+    return today > d1 && today <= d2
+  }
+
+  if (date === "25日") {
+    return today > d3 && today <= d4
+  }
+
+  if (date === "28日") {
+    return today > d5 && today <= d6
+  }
+
+  return false
+
 }
 
 function isEditableCell(c) {
@@ -752,7 +810,13 @@ function printTable() {
     JSON.stringify(rows.value)
   )
 
-  router.push("/print")
+  //router.push("/print")
+  const url = router.resolve({
+    path: "/print"
+  }).href
+
+  window.open(url, "_blank")
+
 }
 
 async function handleDragEnd() {
@@ -766,6 +830,13 @@ async function handleDragEnd() {
 }
 
 onMounted(async () => {
+
+  console.log("onMounted start")
+
+  const resEdit = await axios.get("/api/editdate")
+  console.log(resEdit.data)
+  editTable.value = resEdit.data
+
   const sname = localStorage.getItem("pref")
   /*const year = new Date().getFullYear()*/
   const year = 2025
@@ -776,6 +847,8 @@ onMounted(async () => {
       params: { sname, year }
     }
   )
+
+  console.log(res.data)
 
   setRowsFromDB(res.data)
   //追加0608
@@ -864,7 +937,7 @@ thead tr:nth-child(2) th {
 }
 
 .col-qty {
-  width: 220px;
+  width: 235px;
 }
 
 /* ===== header固定 ===== */
@@ -891,9 +964,9 @@ thead tr:nth-child(2) th {
 }
 
 .qty-cell {
-  width: 220px;
-  min-width: 220px;
-  max-width: 220px;
+  /*width: 240px;
+  min-width: 240px;
+  max-width: 240px;*/
   padding: 0;
 }
 
@@ -902,6 +975,7 @@ thead tr:nth-child(2) th {
 input,
 select {
   background-color: white;
+  font-size: 18px;
 }
 
 /* 必須 */
@@ -962,7 +1036,7 @@ select {
 /* ===== input ===== */
 
 input {
-  width: 50px;
+  width: 60px;
   border: none;
   padding: 5px;
   text-align: right;
@@ -1082,6 +1156,7 @@ select:disabled {
   cursor: not-allowed;
 }
 
+/*
 .print-btn {
   padding: 4px 12px;
 
@@ -1097,6 +1172,19 @@ select:disabled {
   cursor: pointer;
 
   box-shadow: none;
+}
+*/
+.print-btn {
+  padding: 8px 20px;
+
+  background: #f5f5f5;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+
+  font-size: 16px;
+  font-weight: bold;
+
+  cursor: pointer;
 }
 
 .print-btn:hover {

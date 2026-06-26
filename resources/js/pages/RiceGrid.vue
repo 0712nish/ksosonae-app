@@ -10,9 +10,11 @@
         </div>
       </div>
 
+      <!--
       <button class="print-btn" @click="printTable">
         印刷
       </button>
+      -->
     </div>
 
     <div class="save-info">
@@ -289,12 +291,14 @@ onMounted(async () => {
   width: 200px;
   display: block;
   margin: 0 auto;
+  font-size: 18px;
 }
 
 .rice-table input[type="number"] {
   width: 80px;
   display: block;
   margin: 0 auto;
+  font-size: 18px;
 }
 
 </style>
