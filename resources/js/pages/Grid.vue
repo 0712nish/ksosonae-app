@@ -235,6 +235,7 @@ const sname = route.query.sname
 const mode = route.query.mode
 /*const shozokuid = route.query.shozokuid*/
 const shozokuid = localStorage.getItem("shozokuid")
+const regaiflg = Number(localStorage.getItem("regaiflg") || 0)
 
 // 最終保存日時
 const lastSavedAt = ref(localStorage.getItem("lastSavedAt") || "")
@@ -617,10 +618,6 @@ function isEditable(date) {
   //}
   //return mode === date.replace("日", "")
 
-  //if (mode === "ALL") {
-  //  return true
-  //}
-
   if (editTable.value.length < 3) {
     return false
   }
@@ -633,13 +630,17 @@ function isEditable(date) {
   const d4 = new normalize(editTable.value[3].editdt)
   const d5 = new normalize(editTable.value[4].editdt)
   const d6 = new normalize(editTable.value[5].editdt)
+  const d7 = new normalize(editTable.value[6].editdt)
 
   if (date === "20日") {
     return today > d1 && today <= d2
   }
 
   if (date === "25日") {
-    return today > d3 && today <= d4
+
+    const endDate = regaiflg === 1 ? d7 : d4
+
+    return today > d3 && today <= endDate
   }
 
   if (date === "28日") {
