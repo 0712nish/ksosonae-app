@@ -2,6 +2,7 @@
   <div class="grid">
     <div class="content-area">
       <div class="header-area">
+        <button class="back-btn" @click="goBack">戻る</button>
         <div class="title-area">
           <h1 class="report-title">感謝祭お供え報告書</h1>      
           <div class="report-subtitle">
@@ -235,7 +236,7 @@ const sname = route.query.sname
 const mode = route.query.mode
 /*const shozokuid = route.query.shozokuid*/
 const shozokuid = localStorage.getItem("shozokuid")
-const regaiflg = Number(localStorage.getItem("regaiflg") || 0)
+const reigaiflg = Number(localStorage.getItem("reigaiflg") || 0)
 
 // 最終保存日時
 const lastSavedAt = ref(localStorage.getItem("lastSavedAt") || "")
@@ -638,7 +639,7 @@ function isEditable(date) {
 
   if (date === "25日") {
 
-    const endDate = regaiflg === 1 ? d7 : d4
+    const endDate = reigaiflg === 1 ? d7 : d4
 
     return today > d3 && today <= endDate
   }
@@ -867,6 +868,10 @@ onMounted(async () => {
 window.addEventListener("click", () => {
   menu.value.visible = false
 })
+
+function goBack() {
+  router.back()
+}
 
 </script>
 
@@ -1175,7 +1180,7 @@ select:disabled {
   box-shadow: none;
 }
 */
-.print-btn {
+.print-btn, .back-btn {
   padding: 8px 20px;
 
   background: #f5f5f5;
@@ -1188,11 +1193,11 @@ select:disabled {
   cursor: pointer;
 }
 
-.print-btn:hover {
+.print-btn:hover, .back-btn:hover {
   background: #eaeaea;
 }
 
-.print-btn:active {
+.print-btn:active, .back-btn:active {
   transform: translateY(0);
 }
 

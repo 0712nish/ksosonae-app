@@ -92,7 +92,7 @@ const login = async () => {
 
   localStorage.setItem("shozokuid",res.data.no)
   /*localStorage.setItem("pass",res.data.pass)*/
-  localStorage.setItem("regaiflg", res.data.regaiflg)
+  localStorage.setItem("reigaiflg", res.data.reigaiflg)
   localStorage.setItem("pref", pref.value)
 
   // パスワード判定

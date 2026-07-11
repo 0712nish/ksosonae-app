@@ -2,6 +2,7 @@
   <div class="rice-page">
 
     <div class="header-area">
+      <button class="back-btn" @click="goBack">戻る</button>
       <div class="title-area">
         <h1 class="report-title">感謝祭お供え報告書</h1>
 
@@ -126,6 +127,9 @@
 <script setup>
 import axios from "axios"
 import { reactive, ref, onMounted } from "vue"
+import { useRouter } from "vue-router"
+
+const router = useRouter()
 
 const sname = localStorage.getItem("pref")
 const shozokuid = localStorage.getItem("shozokuid")
@@ -201,6 +205,10 @@ onMounted(async () => {
   await loadRice()
 })
 
+function goBack() {
+  router.back()
+}
+
 </script>
 
 <style scoped>
@@ -231,17 +239,25 @@ onMounted(async () => {
   color: #020080;
 }
 
-.print-btn {
-  padding: 4px 12px;
+.print-btn, .back-btn {
+  padding: 8px 20px;
+
   background: #f5f5f5;
   border: 1px solid #bbb;
   border-radius: 4px;
-  font-size: 13px;
+
+  font-size: 16px;
+  font-weight: bold;
+
   cursor: pointer;
 }
 
-.print-btn:hover {
+.print-btn:hover, .back-btn:hover {
   background: #eaeaea;
+}
+
+.print-btn:active, .back-btn:active {
+  transform: translateY(0);
 }
 
 .save-info {
