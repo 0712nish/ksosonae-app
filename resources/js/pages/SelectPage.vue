@@ -79,8 +79,8 @@ const goNext = () => {
   } else {
 
     router.push({
-      //path: "/grid",
-      path: "/kaigaigrid",
+      path: "/grid",
+      // path: "/kaigaigrid",
       query: {
         // mode: selected.value,
         mode: "ALL",

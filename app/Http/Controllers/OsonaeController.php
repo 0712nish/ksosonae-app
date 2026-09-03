@@ -89,6 +89,9 @@ class OsonaeController extends Controller
 
             'hinmoku'   => $row['hinmoku'],
 
+            // ★追加
+            'tantoshaname' => $row['tantoshaname'],
+
             'tanikosu1' => $row['quantities']['20日']['ml_value'],
             'tstani1'   => $row['quantities']['20日']['ml_unit'],
             'gokeisu1'  => $row['quantities']['20日']['hon_value'],
@@ -127,9 +130,21 @@ class OsonaeController extends Controller
                 ->insertGetId($saveData);
         }
 
+        // ★DBに保存された値を取得2026.9.3
+        // updatedt はDB側で自動更新
+        $savedData = DB::table('osonaedata')
+            ->where('autono', $autono)
+            ->first([
+                'updatedt',
+                'tantoshaname'
+            ]);
+            
         return response()->json([
             'success' => true,
-            'autono' => $autono
+            'autono' => $autono,
+            'updatedt'     => $savedData?->updatedt,
+            'tantoshaname' => $savedData?->tantoshaname
+            //追加2026.9.3 updatedt tantoshaname
         ]);
     }
 
@@ -241,13 +256,37 @@ class OsonaeController extends Controller
                 'fukuro3' => $request->fukuro3,
                 'fukuro4' => $request->fukuro4,
 
-                'updatedt' => now(),
+                // ★updatedt はDB側で自動更新2026.9.3
+                //'updatedt' => now(),
             ]
         );
+
+        // ★DBに保存された値を取得2026.9.3
+        $data = DB::table('osonaericedata')
+            ->where('shozokuid', $request->shozokuid)
+            ->where('year', $request->year)
+            ->first();
 
         return response()->json([
             'updatedt' => now()
         ]);
+    }
+
+    // ★追加2026.9.3
+    // 最後に保存されたお供えデータを取得
+    public function lastSaved(Request $request)
+    {
+        $data = DB::table('osonaedata')
+            ->where('shozokuid', $request->shozokuid)
+            ->where('year', $request->year)
+            ->whereNotNull('updatedt')
+            ->orderByDesc('updatedt')
+            ->first([
+                'updatedt',
+                'tantoshaname'
+            ]);
+
+        return response()->json($data);
     }
 
 }

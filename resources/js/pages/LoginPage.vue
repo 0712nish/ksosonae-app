@@ -12,6 +12,16 @@
           </option>
         </select>
       </div>
+      
+      <!-- 担当者氏名 -->
+      <div class="form-group">
+        <label>担当者氏名</label>
+        <input
+          type="text"
+          v-model="tantoshaname"
+          placeholder="担当者氏名を入力"
+        />
+      </div>
 
       <div class="form-group">
         <label>パスワード</label>
@@ -67,46 +77,69 @@ const prefectures = [
 ]*/
 
 const pref = ref("")
+const tantoshaname = ref("")
 const password = ref("")
 const error = ref("")
 
 const login = async () => {
+
+  // 所属チェック
   if (!pref.value) {
-    error.value = "拠点名を選択してください"
+    error.value = "所属を選択してください"
     return
   }
 
-  /*if (password.value !== "1234") {
-    error.value = "パスワードが違います"
+  // 担当者氏名チェック
+  if (!tantoshaname.value.trim()) {
+    error.value = "担当者氏名を入力してください"
     return
-  }*/
+  }
 
-  localStorage.setItem("loggedIn", "1")
+  try {
 
-  const res = await axios.get(
-    "/api/shozoku",
-    {
-      params: {
-        sname: pref.value
+    // 所属情報取得
+    const res = await axios.get(
+      "/api/shozoku",
+      {
+        params: {
+          sname: pref.value
+        }
       }
+    )
+
+    // パスワード判定
+    if (
+      password.value !== "19700301" &&
+      password.value !== res.data.pass
+    ) {
+      error.value = "パスワードが違います"
+      return
     }
-  )
 
-  localStorage.setItem("shozokuid",res.data.no)
-  /*localStorage.setItem("pass",res.data.pass)*/
-  localStorage.setItem("reigaiflg", res.data.reigaiflg)
-  localStorage.setItem("pref", pref.value)
+    // ログイン成功後にlocalStorageへ保存
+    localStorage.setItem("loggedIn", "1")
+    localStorage.setItem("shozokuid", res.data.no)
+    localStorage.setItem("reigaiflg", res.data.reigaiflg)
+    localStorage.setItem("pref", pref.value)
 
-  // パスワード判定
-  if (
-    password.value !== "19700301" &&
-    password.value !== res.data.pass
-  ) {
-    error.value = "パスワードが違います"
-    return
+    // ログイン情報をlogindataへ保存
+    await axios.post(
+      "/api/logindata/save",
+      {
+        shozokuid: res.data.no,
+        tantoshaname: tantoshaname.value.trim()
+      }
+    )
+
+    // 選択画面へ
+    router.push("/select")
+
+  } catch (e) {
+
+    console.log(e.response?.data)
+
+    error.value = "ログイン処理に失敗しました"
   }
-
-  router.push("/select")
 }
 </script>
 

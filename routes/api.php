@@ -5,7 +5,9 @@ use App\Http\Controllers\OsonaeController;
 use App\Http\Controllers\ShozokuController; 
 use App\Http\Controllers\EditTableController;
 use App\Http\Controllers\KaigaiController;
+use App\Http\Controllers\LoginDataController;
 
+Route::post('/logindata/save', [LoginDataController::class, 'save']);
 Route::get('/osonae', [OsonaeController::class, 'index']);
 Route::post('/osonae/save', [OsonaeController::class, 'save']);
 Route::get('/shozoku', [ShozokuController::class, 'index']);
@@ -17,3 +19,5 @@ Route::post('/kaigai/delete', [KaigaiController::class, 'delete']);
 Route::get('/osonaerice', [OsonaeController::class, 'riceIndex']);
 Route::post('/osonaerice/save',[OsonaeController::class, 'riceSave']);
 Route::get('/editdate', [EditTableController::class, 'index']);
+// ★追加
+Route::get('/osonae/last-saved', [OsonaeController::class, 'lastSaved']);

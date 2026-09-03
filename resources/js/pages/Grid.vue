@@ -240,6 +240,8 @@ const reigaiflg = Number(localStorage.getItem("reigaiflg") || 0)
 
 // 最終保存日時
 const lastSavedAt = ref(localStorage.getItem("lastSavedAt") || "")
+//const lastSavedAt = ref("")
+//const lastSavedTantoshaname = ref("")
 
 /* ===== 定義 ===== */
 const quantityColumns = [
