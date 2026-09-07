@@ -13,7 +13,8 @@
       </div>
 
       <div class="save-info">
-        最終更新 {{ lastSavedAt }}
+        最終更新 {{ lastSavedAt }}<br>
+        担当者：{{ lastSavedTantoshaname }} 
       </div>
       <div class="report-subtitle rice-title">
         ◆野菜、果物、特産品
@@ -95,13 +96,15 @@
                   <!-- 上段 -->
                   <div class="row-top">
                     <!-- ml -->
-                    <input type="number"
-                      min="0"
+                    <input type="text"
+                      inputmode="decimal"
                       @input="e => {
                         if (e.target.value < 0) {
                           e.target.value = 0
                           row.quantities[q.date].ml_value = 0
                         }
+                        
+                        limitDecimal(e, row, q.date, 'ml_value')
                       }"
                       v-model="row.quantities[q.date].ml_value"
                       :disabled="!isEditable(q.date)"
@@ -123,13 +126,15 @@
                     </select>
                     
                     <!-- 本 -->
-                    <input type="number"
-                      min="0"
+                    <input type="text"
+                      inputmode="decimal"
                       @input="e => {
                         if (e.target.value < 0) {
                           e.target.value = 0
                           row.quantities[q.date].hon_value = 0
                         }
+                        
+                        limitDecimal(e, row, q.date, 'hon_value')
                       }"
                       v-model="row.quantities[q.date].hon_value"
                       :disabled="!isEditable(q.date)"
@@ -163,13 +168,15 @@
                       変更なし
                     </button>
                     <!-- 箱 -->
-                    <input type="number"
-                      min="0"
+                    <input type="text"
+                      inputmode="decimal"
                       @input="e => {
                         if (e.target.value < 0) {
                           e.target.value = 0
                           row.quantities[q.date].hako_value = 0
                         }
+
+                        limitDecimal(e, row, q.date, 'hako_value')
                       }"                      
                       v-model="row.quantities[q.date].hako_value"
                       :disabled="!isEditable(q.date)"
@@ -239,9 +246,9 @@ const shozokuid = localStorage.getItem("shozokuid")
 const reigaiflg = Number(localStorage.getItem("reigaiflg") || 0)
 
 // 最終保存日時
-const lastSavedAt = ref(localStorage.getItem("lastSavedAt") || "")
-//const lastSavedAt = ref("")
-//const lastSavedTantoshaname = ref("")
+//const lastSavedAt = ref(localStorage.getItem("lastSavedAt") || "")
+const lastSavedAt = ref("")
+const lastSavedTantoshaname = ref("")
 
 /* ===== 定義 ===== */
 const quantityColumns = [
@@ -777,14 +784,22 @@ async function saveRow(row) {
         kubetsu: row.kubetsu,
         hinmoku: row.hinmoku,
 
+        // ★ログイン中の担当者名
+        tantoshaname: localStorage.getItem("tantoshaname") || "",
+
         quantities: row.quantities
       }
     )
     // INSERT後に autono を保持
     row.autono = res.data.autono
 
-    lastSavedAt.value = new Date().toLocaleString("ja-JP")
-    localStorage.setItem("lastSavedAt",lastSavedAt.value)
+    //lastSavedAt.value = new Date().toLocaleString("ja-JP")
+    //localStorage.setItem("lastSavedAt",lastSavedAt.value)
+
+    // ★DB側で更新された値を表示
+    lastSavedAt.value = res.data.updatedt || ""
+    // ★担当者名
+    lastSavedTantoshaname.value = res.data.tantoshaname || ""
 
   } catch (e) {
 
@@ -855,11 +870,26 @@ onMounted(async () => {
   console.log(res.data)
 
   setRowsFromDB(res.data)
-  //追加0608
-  if (res.data.length > 0) {
-    lastSavedAt.value = res.data[0].updatedt
-  }
+  ////追加0608
+  //if (res.data.length > 0) {
+  //  lastSavedAt.value = res.data[0].updatedt
+  //}
 
+  // ★最後に保存した日時・担当者を取得
+  const lastRes = await axios.get(
+    "/api/osonae/last-saved",
+    {
+      params: {
+        shozokuid,
+        year
+      }
+    }
+  )
+
+  if (lastRes.data) {
+    lastSavedAt.value = lastRes.data.updatedt || ""
+    lastSavedTantoshaname.value = lastRes.data.tantoshaname || ""
+  }
   // 初期カーソル
   nextTick(() => {
     focusCell(0, 0)
@@ -873,6 +903,41 @@ window.addEventListener("click", () => {
 
 function goBack() {
   router.back()
+}
+
+/*
+function limitDecimal(e, row, date, field) {
+  let value = e.target.value
+
+  // 小数点以下2桁以上なら1桁に制限
+  if (!/^\d*(\.\d?)?$/.test(value)) {
+    value = value.slice(0, -1)
+  }
+
+  e.target.value = value
+  row.quantities[date][field] = value
+}
+*/
+
+function limitDecimal(e, row, date, field) {
+  let value = e.target.value
+
+  // 数字と小数点以外を削除
+  value = value.replace(/[^\d.]/g, '')
+
+  // 小数点を2個以上入力できないようにする
+  const parts = value.split('.')
+  if (parts.length > 2) {
+    value = parts[0] + '.' + parts.slice(1).join('')
+  }
+
+  // 小数点以下1桁まで
+  if (parts.length >= 2) {
+    value = parts[0] + '.' + parts[1].slice(0, 1)
+  }
+
+  e.target.value = value
+  row.quantities[date][field] = value
 }
 
 </script>

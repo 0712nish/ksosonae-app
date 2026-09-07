@@ -90,7 +90,7 @@ class OsonaeController extends Controller
             'hinmoku'   => $row['hinmoku'],
 
             // ★追加
-            'tantoshaname' => $row['tantoshaname'],
+            'tantoshaname' => $row['tantoshaname'] ?? '',
 
             'tanikosu1' => $row['quantities']['20日']['ml_value'],
             'tstani1'   => $row['quantities']['20日']['ml_unit'],
@@ -268,7 +268,8 @@ class OsonaeController extends Controller
             ->first();
 
         return response()->json([
-            'updatedt' => now()
+            //'updatedt' => now()
+            'updatedt' => $data?->updatedt
         ]);
     }
 

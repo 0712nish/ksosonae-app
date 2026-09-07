@@ -121,6 +121,7 @@ const login = async () => {
     localStorage.setItem("shozokuid", res.data.no)
     localStorage.setItem("reigaiflg", res.data.reigaiflg)
     localStorage.setItem("pref", pref.value)
+    localStorage.setItem("tantoshaname", tantoshaname.value.trim())
 
     // ログイン情報をlogindataへ保存
     await axios.post(
