@@ -11,11 +11,10 @@
         </div>
       </div>
 
-      <!--
       <button class="print-btn" @click="printTable">
         印刷
       </button>
-      -->
+
     </div>
 
     <div class="save-info">
@@ -29,19 +28,15 @@
 <table class="rice-table">
 
   <tr>
-    <th>うるち</th>
+    <th></th>
+    <th></th>
     <th>数量</th>
-
-    <th>もち</th>
-    <th>数量</th>
-
-    <th>左記以外×数量</th>
     <th>左記以外×数量</th>
   </tr>
 
   <tr>
+    <td rowspan="2">うるち</td>
     <td>俵(60kg)</td>
-
     <td class="input-cell">
       <input
         type="number"
@@ -49,17 +44,6 @@
         @blur="saveRice"
       >
     </td>
-
-    <td>俵(60kg)</td>
-
-    <td class="input-cell">
-      <input
-        type="number"
-        v-model="rice.tawara2"
-        @blur="saveRice"
-      >
-    </td>
-
     <td>
       <input
         type="text"
@@ -68,8 +52,37 @@
         @blur="saveRice"
       >
     </td>
+  </tr>
 
+  <tr>
+    <td>袋(30kg)</td>
     <td class="input-cell">
+      <input
+        type="number"
+        v-model="rice.fukuro1"
+        @blur="saveRice"
+      >
+    </td>
+    <td>
+      <input
+        type="text"
+        maxlength="30"
+        v-model="rice.fukuro3"
+        @blur="saveRice"
+      >
+    </td>
+  </tr>
+  <tr>
+    <td rowspan="2">もち</td>
+    <td>俵(60kg)</td>
+    <td class="input-cell">
+      <input
+        type="number"
+        v-model="rice.tawara2"
+        @blur="saveRice"
+      >
+    </td>
+    <td>
       <input
         type="text"
         maxlength="30"
@@ -81,17 +94,6 @@
 
   <tr>
     <td>袋(30kg)</td>
-
-    <td class="input-cell">
-      <input
-        type="number"
-        v-model="rice.fukuro1"
-        @blur="saveRice"
-      >
-    </td>
-
-    <td>袋(30kg)</td>
-
     <td class="input-cell">
       <input
         type="number"
@@ -99,17 +101,7 @@
         @blur="saveRice"
       >
     </td>
-
     <td>
-      <input
-        type="text"
-        maxlength="30"
-        v-model="rice.fukuro3"
-        @blur="saveRice"
-      >
-    </td>
-
-    <td class="input-cell">
       <input
         type="text"
         maxlength="30"
@@ -118,7 +110,6 @@
       >
     </td>
   </tr>
-
 </table>
 
   </div>
@@ -209,6 +200,33 @@ function goBack() {
   router.back()
 }
 
+function printTable() {
+
+  localStorage.setItem(
+    "printRice",
+    JSON.stringify({
+      sname,
+      rice: {
+        tawara1: rice.tawara1,
+        tawara2: rice.tawara2,
+        tawara3: rice.tawara3,
+        tawara4: rice.tawara4,
+
+        fukuro1: rice.fukuro1,
+        fukuro2: rice.fukuro2,
+        fukuro3: rice.fukuro3,
+        fukuro4: rice.fukuro4
+      }
+    })
+  )
+
+  const url = router.resolve({
+    path: "/rice-print"
+  }).href
+
+  window.open(url, "_blank")
+}
+
 </script>
 
 <style scoped>
@@ -274,6 +292,7 @@ function goBack() {
 .rice-table {
   border-collapse: collapse;
   width: 1000px;
+  margin: 0 auto;
 }
 
 .rice-table th,

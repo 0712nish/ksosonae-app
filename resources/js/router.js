@@ -9,6 +9,7 @@ import Main28App from "./pages/Main28App.vue"*/
 import Grid from "./pages/Grid.vue"
 import Print from "./pages/Print.vue"
 import RiceGrid from "./pages/RiceGrid.vue"
+import RicePrint from "./pages/RicePrint.vue"
 import KaigaiGrid from "./pages/KaigaiGrid.vue"
 
 const routes = [
@@ -17,6 +18,7 @@ const routes = [
   { path: "/grid", name: "grid", component: Grid },
   { path: "/print", name: "print", component: Print },
   { path: "/ricegrid", name: "ricegrid", component: RiceGrid },
+  { path: "/rice-print", name: "rice-print", component: RicePrint },
   { path: "/kaigaigrid", name: "kaigaigrid", component: KaigaiGrid },
   /*{ path: "/app", name: "app", component: MainApp },
   { path: "/app20", name: "app20", component: Main20App },

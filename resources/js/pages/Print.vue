@@ -1,7 +1,13 @@
 <template>
   <div class="print-area">
 
-    <h1>御供一覧</h1>
+    <h1 class="report-title">
+      感謝祭お供え報告書
+    </h1>
+
+    <div class="report-subtitle">
+      所属【 {{ sname }} 】
+    </div>
 
     <table>
         <thead>
@@ -97,12 +103,15 @@
 import { onMounted, ref, nextTick } from "vue"
 
 const rows = ref([])
+const sname = ref("")
 
 onMounted(async () => {
 
   rows.value = JSON.parse(
     localStorage.getItem("printRows")
   ) || []
+
+  sname.value = localStorage.getItem("printSname") || ""
 
   await nextTick()
 

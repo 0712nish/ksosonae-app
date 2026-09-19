@@ -6,7 +6,7 @@
         <div class="title-area">
           <h1 class="report-title">感謝祭お供え報告書</h1>      
           <div class="report-subtitle">
-            所属【　{{ sname }}　】　{{ mode === "ALL" ? "全日分編集" : mode + "日締切分編集" }}
+            所属【　{{ sname }}　】
           </div>
         </div>
         <button class="print-btn" @click="printTable">印刷</button>
@@ -824,18 +824,23 @@ async function saveAllRows() {
 
 function printTable() {
 
+  // 印刷する表データ
   localStorage.setItem(
     "printRows",
     JSON.stringify(rows.value)
   )
 
-  //router.push("/print")
+  // 印刷ページ用の所属名
+  localStorage.setItem(
+    "printSname",
+    sname
+  )
+
   const url = router.resolve({
     path: "/print"
   }).href
 
   window.open(url, "_blank")
-
 }
 
 async function handleDragEnd() {
