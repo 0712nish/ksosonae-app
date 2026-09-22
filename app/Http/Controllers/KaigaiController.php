@@ -25,6 +25,8 @@ class KaigaiController extends Controller
 
     public function save(Request $request)
     {
+      try {
+
         $row = $request->all();
 
         $saveData = [
@@ -44,17 +46,20 @@ class KaigaiController extends Controller
             'chiikimei' =>
                 $row['chiikimei'] ?? '',
 
-            'jissisyear' =>
-                $row['jissisyear'] ?? '',
+            'jissiyear' =>
+                $row['jissiyear'] ?? '',
 
             'seisansha' =>
                 $row['seisansha'] ?? '',
 
-            'shinjkab' =>
-                $row['shinjkab'] ?? '',
+            'shinjakb' =>
+                $row['shinjakb'] ?? '',
 
             'suryo' =>
                 $row['suryo'] ?? '',
+
+            'tantoshaname' =>
+                $row['tantoshaname'] ?? '',
         ];
 
 
@@ -91,13 +96,58 @@ class KaigaiController extends Controller
 
         }
 
+        // DBに保存された値を取得 
+        $savedData = DB::table('osonaekaigaidata')
+            ->where('autono', $autono)
+            ->first([
+                'updatedt',
+                'tantoshaname'
+            ]);
 
         return response()->json([
             'success' => true,
-            'autono' => $autono
+            'autono' => $autono,
+            'updatedt' => $savedData?->updatedt,
+            'tantoshaname' => $savedData?->tantoshaname,
         ]);
+
+      }catch (\Throwable $e) { 
+        \Log::error(
+             'Kaigai save error',
+              [ 'message' => $e->getMessage(),
+                'request' => $request->all(),
+                ]
+        );
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage(),
+        ], 500);
+      }
+
     }
 
+    public function lastSaved(Request $request)
+    {
+        $data = DB::table('osonaekaigaidata')
+            ->where(
+                'shozokuid',
+                $request->shozokuid
+            )
+            ->where(
+                'year',
+                $request->year
+            )
+            ->whereNotNull('updatedt')
+            ->orderByDesc('updatedt')
+            ->first([
+                'updatedt',
+                'tantoshaname'
+            ]);
+
+        return response()->json(
+            $data
+        );
+    }
 
     public function delete(Request $request)
     {

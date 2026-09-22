@@ -256,6 +256,8 @@ class OsonaeController extends Controller
                 'fukuro3' => $request->fukuro3,
                 'fukuro4' => $request->fukuro4,
 
+                'tantoshaname' => $request->tantoshaname ?? '',
+
                 // ★updatedt はDB側で自動更新2026.9.3
                 //'updatedt' => now(),
             ]
@@ -269,7 +271,8 @@ class OsonaeController extends Controller
 
         return response()->json([
             //'updatedt' => now()
-            'updatedt' => $data?->updatedt
+            'updatedt' => $data?->updatedt,
+            'tantoshaname' => $data?->tantoshaname,
         ]);
     }
 

@@ -120,6 +120,7 @@ const login = async () => {
     localStorage.setItem("loggedIn", "1")
     localStorage.setItem("shozokuid", res.data.no)
     localStorage.setItem("reigaiflg", res.data.reigaiflg)
+    localStorage.setItem("kaigaiflg", res.data.kaigaiflg)
     localStorage.setItem("pref", pref.value)
     localStorage.setItem("tantoshaname", tantoshaname.value.trim())
 
@@ -132,8 +133,14 @@ const login = async () => {
       }
     )
 
-    // 選択画面へ
-    router.push("/select")
+    //kaigaiflg で遷移先を分岐
+    if (Number(res.data.kaigaiflg) === 1) {
+      // 海外
+      router.push("/kaigaigrid")
+    } else {
+      // 国内
+      router.push("/select")
+    }
 
   } catch (e) {
 

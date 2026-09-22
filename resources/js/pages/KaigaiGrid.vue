@@ -28,7 +28,8 @@
 
       <!-- 最終更新 -->
       <div class="save-info">
-        最終更新 {{ lastSavedAt }}
+        最終更新 {{ lastSavedAt }}<br>
+        担当者：{{ lastSavedTantoshaname }}
       </div>
 
 
@@ -48,9 +49,9 @@
             <col class="col-hinmoku">
             <col class="col-chugokugo">
             <col class="col-area">
-            <col class="col-jissisyear">
+            <col class="col-jissiyear">
             <col class="col-seisansha">
-            <col class="col-shinjkab">
+            <col class="col-shinjakb">
             <col class="col-suryo">
 
           </colgroup>
@@ -81,7 +82,7 @@
                 地域名
               </th>
 
-              <th rowspan="2" class="jissisyear-header">
+              <th rowspan="2" class="jissiyear-header">
                 自然農法<br>
                 実施年数
               </th>
@@ -90,7 +91,7 @@
                 生産者名
               </th>
 
-              <th rowspan="2" class="shinjkab-header">
+              <th rowspan="2" class="shinjakb-header">
                 信者<br>
                 未信者
               </th>
@@ -232,11 +233,11 @@
 
 
                 <!-- 自然農法実施年数 -->
-                <td class="jissisyear-cell">
+                <td class="jissiyear-cell">
 
                   <input
-                    class="jissisyear-input"
-                    v-model="row.jissisyear"
+                    class="jissiyear-input"
+                    v-model="row.jissiyear"
                     @keydown="
                       handleKey($event, r, 4)
                     "
@@ -268,11 +269,11 @@
 
 
                 <!-- 信者/未信者 -->
-                <td class="shinjkab-cell">
+                <td class="shinjakb-cell">
 
                   <select
-                    class="shinjkab-select"
-                    v-model="row.shinjkab"
+                    class="shinjakb-select"
+                    v-model="row.shinjakb"
                     @keydown="
                       handleKey($event, r, 6)
                     "
@@ -395,6 +396,9 @@ const sname =
 const shozokuid =
   localStorage.getItem("shozokuid")
 
+const tantoshaname =
+  localStorage.getItem("tantoshaname") || ""
+
 const year = 2025
 
 
@@ -402,12 +406,16 @@ const year = 2025
    最終更新
 ========================= */
 
-const lastSavedAt = ref(
+/*const lastSavedAt = ref(
   localStorage.getItem(
     "kaigaiLastSavedAt"
   ) || ""
-)
+)*/
+const lastSavedAt = ref("")
+const lastSavedTantoshaname = ref("")
 
+// 初期表示中は保存しない
+const isInitializing = ref(true)
 
 /* =========================
    区別
@@ -470,11 +478,11 @@ function createRow(no) {
 
     chiikimei: "",
 
-    jissisyear: "",
+    jissiyear: "",
 
     seisansha: "",
 
-    shinjkab: "",
+    shinjakb: "",
 
     suryo: ""
 
@@ -929,14 +937,14 @@ function setRowsFromDB(
         chiikimei:
           d.chiikimei ?? "",
 
-        jissisyear:
-          d.jissisyear ?? "",
+        jissiyear:
+          d.jissiyear ?? "",
 
         seisansha:
           d.seisansha ?? "",
 
-        shinjkab:
-          d.shinjkab ?? "",
+        shinjakb:
+          d.shinjakb ?? "",
 
         suryo:
           d.suryo ?? ""
@@ -970,18 +978,18 @@ function setRowsFromDB(
 async function saveRow(
   row
 ) {
-
+  // 初期表示中は保存しない
+  if (isInitializing.value) {
+    return
+  }
   /*
    * 未入力行は保存しない
    */
-
   if (
     !row.kubetsu ||
     !row.hinmoku
   ) {
-
     return
-
   }
 
 
@@ -1017,17 +1025,20 @@ async function saveRow(
           chiikimei:
             row.chiikimei,
 
-          jissisyear:
-            row.jissisyear,
+          jissiyear:
+            row.jissiyear,
 
           seisansha:
             row.seisansha,
 
-          shinjkab:
-            row.shinjkab,
+          shinjakb:
+            row.shinjakb,
 
           suryo:
-            row.suryo
+            row.suryo,
+
+          // 保存した担当者
+          tantoshaname
 
         }
       )
@@ -1041,19 +1052,23 @@ async function saveRow(
     row.autono =
       res.data.autono
 
-
-    lastSavedAt.value =
+    /*lastSavedAt.value =
       new Date()
         .toLocaleString(
           "ja-JP"
-        )
+        )*/
 
-
-    localStorage.setItem(
+    /*localStorage.setItem(
       "kaigaiLastSavedAt",
       lastSavedAt.value
-    )
+    )*/
 
+    // DBが返した値をそのまま表示
+    lastSavedAt.value =
+      res.data.updatedt ?? ""
+
+    lastSavedTantoshaname.value =
+      res.data.tantoshaname ?? tantoshaname
 
   } catch (e) {
 
@@ -1062,7 +1077,9 @@ async function saveRow(
     )
 
     alert(
-      "保存失敗"
+      "保存失敗\n\n" + 
+      e.response?.data?.message ||
+        e.message
     )
 
   }
@@ -1133,7 +1150,7 @@ function goBack() {
    初期処理
 ========================= */
 
-onMounted(
+/*onMounted(
   async () => {
 
     try {
@@ -1195,8 +1212,98 @@ onMounted(
     }
 
   }
-)
+)*/
 
+async function loadLastSaved() {
+  try {
+    const res = await axios.get(
+      "/api/kaigai/last-saved",
+      {
+        params: {
+          shozokuid,
+          year
+        }
+      }
+    )
+
+    lastSavedAt.value = res.data?.updatedt ?? ""
+    lastSavedTantoshaname.value =
+      res.data?.tantoshaname ?? ""
+  } catch (e) {
+    console.error("最終更新情報取得失敗", e)
+    lastSavedAt.value = ""
+    lastSavedTantoshaname.value = ""
+  }
+}
+
+onMounted(
+  async () => {
+
+    try {
+
+      // =========================
+      // 初期表示中
+      // =========================
+      isInitializing.value = true
+
+      // =========================
+      // 明細データ取得
+      // =========================
+      const res =
+        await axios.get(
+          "/api/kaigai",
+          {
+            params: {
+              sname,
+              shozokuid,
+              year
+            }
+          }
+        )
+
+      console.log(
+        "Kaigai data:",res.data
+      )
+
+      setRowsFromDB(
+        res.data
+      )
+
+
+      // =========================
+      // 最終更新情報取得
+      // =========================
+      await loadLastSaved()
+
+
+      // =========================
+      // 初期フォーカス
+      // =========================
+      /*nextTick(
+        () => {focusCell(0,0)}
+      )*/
+      await nextTick()
+      focusCell(
+        0,
+        0
+      )
+      // =========================
+      // 初期表示終了
+      // =========================
+      isInitializing.value = false
+
+    } catch (e) {
+
+      console.error(e)
+      alert(
+        "データ取得に失敗しました"
+      )
+      isInitializing.value = false
+
+    }
+
+  }
+)
 
 /* =========================
    メニューを閉じる
@@ -1355,7 +1462,7 @@ thead tr:nth-child(2) th {
   width: 80px;
 }
 
-.col-jissisyear {
+.col-jissiyear {
   width: 100px;
 }
 
@@ -1363,7 +1470,7 @@ thead tr:nth-child(2) th {
   width: 110px;
 }
 
-.col-shinjkab {
+.col-shinjakb {
   width: 70px;
 }
 
@@ -1490,7 +1597,7 @@ select {
   text-align: center;
 }
 
-.jissisyear-input {
+.jissiyear-input {
   width: 95px;
   text-align: center;
 }
@@ -1500,7 +1607,7 @@ select {
   text-align: left;
 }
 
-.shinjkab-select {
+.shinjakb-select {
   width: 68px;
   text-align: center;
 }

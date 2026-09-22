@@ -7,7 +7,7 @@
         <h1 class="report-title">感謝祭お供え報告書</h1>
 
         <div class="report-subtitle">
-          所属【 {{ sname }} 】
+          所属【　{{ sname }}　】
         </div>
       </div>
 
@@ -18,7 +18,8 @@
     </div>
 
     <div class="save-info">
-      最終更新 {{ lastSavedAt }}
+      最終更新 {{ lastSavedAt }}<br>
+      担当者：{{ lastSavedTantoshaname }}
     </div>
 
     <div class="report-subtitle rice-title">
@@ -124,9 +125,11 @@ const router = useRouter()
 
 const sname = localStorage.getItem("pref")
 const shozokuid = localStorage.getItem("shozokuid")
+const tantoshaname = localStorage.getItem("tantoshaname") || ""
 const year = 2025
 
 const lastSavedAt = ref("")
+const lastSavedTantoshaname = ref("")
 
 const rice = reactive({
   tawara1: "",
@@ -167,6 +170,8 @@ async function loadRice() {
   rice.fukuro4 = res.data.fukuro4 ?? ""
 
   lastSavedAt.value = res.data.updatedt ?? ""
+  lastSavedTantoshaname.value = res.data.tantoshaname ?? ""
+
 }
 
 async function saveRice() {
@@ -176,6 +181,9 @@ async function saveRice() {
     {
       shozokuid,
       year,
+
+      // 保存した担当者
+      tantoshaname,
 
       tawara1: rice.tawara1,
       tawara2: rice.tawara2,
@@ -189,7 +197,8 @@ async function saveRice() {
     }
   )
 
-  lastSavedAt.value = res.data.updatedt
+  lastSavedAt.value = res.data.updatedt ?? ""
+  lastSavedTantoshaname.value = res.data.tantoshaname ?? tantoshaname
 }
 
 onMounted(async () => {

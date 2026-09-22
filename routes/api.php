@@ -21,3 +21,7 @@ Route::post('/osonaerice/save',[OsonaeController::class, 'riceSave']);
 Route::get('/editdate', [EditTableController::class, 'index']);
 // ★追加
 Route::get('/osonae/last-saved', [OsonaeController::class, 'lastSaved']);
+Route::get(
+    '/kaigai/last-saved',
+    [KaigaiController::class, 'lastSaved']
+);
