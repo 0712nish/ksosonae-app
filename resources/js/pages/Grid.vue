@@ -72,6 +72,7 @@
                   v-model="row.kubetsu"
                   @keydown="handleKey($event, r, 0)"
                   :ref="el => setRef(el, r, 0)"
+                  @change="markDirty(row)"
                   @blur="saveRow(row)"
                 >
                   <option value=""></option>
@@ -86,6 +87,7 @@
                   v-model="row.hinmoku"
                   @keydown="handleKey($event, r, 1)"
                   :ref="el => setRef(el, r, 1)"
+                  @input="markDirty(row)"
                   @blur="saveRow(row)"
                 />
               </td>
@@ -103,8 +105,8 @@
                           e.target.value = 0
                           row.quantities[q.date].ml_value = 0
                         }
-                        
                         limitDecimal(e, row, q.date, 'ml_value')
+                        markDirty(row)
                       }"
                       v-model="row.quantities[q.date].ml_value"
                       :disabled="!isEditable(q.date)"
@@ -120,6 +122,7 @@
                       :class="{ requiredCell: isRequired(row, 'ml_unit') && isEditable(q.date) }"
                       @keydown="handleKey($event, r, getColIndex(qi, 0, true))"
                       :ref="el => setRef(el, r, getColIndex(qi, 0, true))"
+                      @change="markDirty(row)"
                       @blur="saveRow(row)"
                     >
                       <option v-for="u in unitOptions1" :key="u">{{ u }}</option>
@@ -133,8 +136,8 @@
                           e.target.value = 0
                           row.quantities[q.date].hon_value = 0
                         }
-                        
                         limitDecimal(e, row, q.date, 'hon_value')
+                        markDirty(row)                        
                       }"
                       v-model="row.quantities[q.date].hon_value"
                       :disabled="!isEditable(q.date)"
@@ -150,6 +153,7 @@
                       :class="{ requiredCell: isRequired(row, 'hon_unit') && isEditable(q.date) }"
                       @keydown="handleKey($event, r, getColIndex(qi, 1, true))"
                       :ref="el => setRef(el, r, getColIndex(qi, 1, true))"
+                      @change="markDirty(row)"
                       @blur="saveRow(row)"
                     >
                       <option v-for="u in unitOptions2" :key="u">{{ u }}</option>
@@ -175,8 +179,8 @@
                           e.target.value = 0
                           row.quantities[q.date].hako_value = 0
                         }
-
                         limitDecimal(e, row, q.date, 'hako_value')
+                        markDirty(row)
                       }"                      
                       v-model="row.quantities[q.date].hako_value"
                       :disabled="!isEditable(q.date)"
@@ -192,6 +196,7 @@
                       :class="{ requiredCell: isRequired(row, 'hako_unit') && isEditable(q.date) }"
                       @keydown="handleKey($event, r, getColIndex(qi, 2, true))"
                       :ref="el => setRef(el, r, getColIndex(qi, 2, true))"
+                      @change="markDirty(row)"
                       @blur="saveRow(row)"
                     >
                       <option v-for="u in unitOptions3" :key="u">{{ u }}</option>
@@ -282,35 +287,11 @@ async function insertRow(index) {
   renumberRows()
 
   for (const row of rows.value) {
-    await saveRow(row)
+    await saveRow(row, true)
   }
 
   menu.value.visible = false
 }
-/*
-async function insertRow(index) {
-
-  menu.value.visible = false
-
-  // 後ろから no 更新
-  for (let i = rows.value.length - 1; i >= index; i--) {
-
-    rows.value[i].no = rows.value[i].no + 1
-
-    await saveRow(rows.value[i])
-  }
-
-  // 新規行追加
-  const newRow = createRow(index + 1)
-
-  rows.value.splice(index, 0, newRow)
-
-  renumberRows()
-
-  // 新規保存
-  await saveRow(newRow)
-}
-*/
 
 async function confirmDelete(index) {
 
@@ -331,7 +312,7 @@ async function confirmDelete(index) {
   renumberRows()
 
   for (const row of rows.value) {
-    await saveRow(row)
+    await saveRow(row, true)
   }
 }
 
@@ -373,7 +354,8 @@ function createRow(no) {
     no,
     kubetsu: "",
     hinmoku: "",
-    quantities
+    quantities,
+    _dirty: false
   }
 }
 
@@ -588,7 +570,8 @@ function setRowsFromDB(data) {
           hako_value: trimZero(d.hakosu3),
           hako_unit: d.hstani3,
         }
-      }
+      },
+      _dirty: false
     }
   })
 }
@@ -747,7 +730,8 @@ function copyPreviousDay(row, targetDate) {
     ...row.quantities[sourceDate]
   }
 
-  saveRow(row)
+  saveRow(row, true)
+
 }
 
 function isNumber(val) {
@@ -763,7 +747,12 @@ function validateCell(value) {
   return isNumber(value)
 }
 
-async function saveRow(row) {
+async function saveRow(row, force = false) {
+
+  // 実際に変更していない場合は保存しない
+  if (!force && !row._dirty) {
+    return
+  }
 
   // 未入力行は保存しない
   if (!row.kubetsu || !row.hinmoku) {
@@ -796,10 +785,13 @@ async function saveRow(row) {
     //lastSavedAt.value = new Date().toLocaleString("ja-JP")
     //localStorage.setItem("lastSavedAt",lastSavedAt.value)
 
-    // ★DB側で更新された値を表示
+    // DB側で更新された値を表示
     lastSavedAt.value = res.data.updatedt || ""
-    // ★担当者名
+    // 担当者名
     lastSavedTantoshaname.value = res.data.tantoshaname || ""
+
+    // 保存済みにする
+    row._dirty = false
 
   } catch (e) {
 
@@ -848,7 +840,7 @@ async function handleDragEnd() {
   renumberRows()
 
   for (const row of rows.value) {
-    await saveRow(row)
+    await saveRow(row, true)
   }
  
 }
@@ -875,12 +867,8 @@ onMounted(async () => {
   console.log(res.data)
 
   setRowsFromDB(res.data)
-  ////追加0608
-  //if (res.data.length > 0) {
-  //  lastSavedAt.value = res.data[0].updatedt
-  //}
 
-  // ★最後に保存した日時・担当者を取得
+  // 最後に保存した日時・担当者を取得
   const lastRes = await axios.get(
     "/api/osonae/last-saved",
     {
@@ -910,20 +898,6 @@ function goBack() {
   router.back()
 }
 
-/*
-function limitDecimal(e, row, date, field) {
-  let value = e.target.value
-
-  // 小数点以下2桁以上なら1桁に制限
-  if (!/^\d*(\.\d?)?$/.test(value)) {
-    value = value.slice(0, -1)
-  }
-
-  e.target.value = value
-  row.quantities[date][field] = value
-}
-*/
-
 function limitDecimal(e, row, date, field) {
   let value = e.target.value
 
@@ -943,6 +917,10 @@ function limitDecimal(e, row, date, field) {
 
   e.target.value = value
   row.quantities[date][field] = value
+}
+
+function markDirty(row) {
+  row._dirty = true
 }
 
 </script>

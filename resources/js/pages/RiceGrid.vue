@@ -42,6 +42,7 @@
       <input
         type="number"
         v-model="rice.tawara1"
+        @input="markDirty"
         @blur="saveRice"
       >
     </td>
@@ -50,6 +51,7 @@
         type="text"
         maxlength="30"
         v-model="rice.tawara3"
+        @input="markDirty"
         @blur="saveRice"
       >
     </td>
@@ -61,6 +63,7 @@
       <input
         type="number"
         v-model="rice.fukuro1"
+        @input="markDirty"
         @blur="saveRice"
       >
     </td>
@@ -69,6 +72,7 @@
         type="text"
         maxlength="30"
         v-model="rice.fukuro3"
+        @input="markDirty"
         @blur="saveRice"
       >
     </td>
@@ -80,6 +84,7 @@
       <input
         type="number"
         v-model="rice.tawara2"
+        @input="markDirty"
         @blur="saveRice"
       >
     </td>
@@ -88,6 +93,7 @@
         type="text"
         maxlength="30"
         v-model="rice.tawara4"
+        @input="markDirty"
         @blur="saveRice"
       >
     </td>
@@ -99,6 +105,7 @@
       <input
         type="number"
         v-model="rice.fukuro2"
+        @input="markDirty"
         @blur="saveRice"
       >
     </td>
@@ -107,6 +114,7 @@
         type="text"
         maxlength="30"
         v-model="rice.fukuro4"
+        @input="markDirty"
         @blur="saveRice"
       >
     </td>
@@ -143,6 +151,12 @@ const rice = reactive({
   fukuro4: ""
 })
 
+const isDirty = ref(false)
+
+function markDirty() {
+  isDirty.value = true
+}
+
 async function loadRice() {
 
   const res = await axios.get(
@@ -172,6 +186,9 @@ async function loadRice() {
   lastSavedAt.value = res.data.updatedt ?? ""
   lastSavedTantoshaname.value = res.data.tantoshaname ?? ""
 
+  // DBから読み込んだだけなので保存対象ではない
+  isDirty.value = false
+  
 }
 
 async function saveRice() {
@@ -199,6 +216,10 @@ async function saveRice() {
 
   lastSavedAt.value = res.data.updatedt ?? ""
   lastSavedTantoshaname.value = res.data.tantoshaname ?? tantoshaname
+
+  // 保存できたのでdirty解除
+  isDirty.value = false
+
 }
 
 onMounted(async () => {

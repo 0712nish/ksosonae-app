@@ -160,6 +160,7 @@
                     :ref="
                       el => setRef(el, r, 0)
                     "
+                    @change="markDirty(row)"
                     @blur="saveRow(row)"
                   >
 
@@ -190,6 +191,7 @@
                     :ref="
                       el => setRef(el, r, 1)
                     "
+                    @input="markDirty(row)"
                     @blur="saveRow(row)"
                   >
 
@@ -208,6 +210,7 @@
                     :ref="
                       el => setRef(el, r, 2)
                     "
+                    @input="markDirty(row)"
                     @blur="saveRow(row)"
                   >
 
@@ -226,6 +229,7 @@
                     :ref="
                       el => setRef(el, r, 3)
                     "
+                    @input="markDirty(row)"
                     @blur="saveRow(row)"
                   >
 
@@ -244,6 +248,7 @@
                     :ref="
                       el => setRef(el, r, 4)
                     "
+                    @input="markDirty(row)"
                     @blur="saveRow(row)"
                   >
 
@@ -262,6 +267,7 @@
                     :ref="
                       el => setRef(el, r, 5)
                     "
+                    @input="markDirty(row)"
                     @blur="saveRow(row)"
                   >
 
@@ -280,6 +286,7 @@
                     :ref="
                       el => setRef(el, r, 6)
                     "
+                    @change="markDirty(row)"
                     @blur="saveRow(row)"
                   >
 
@@ -310,6 +317,7 @@
                     :ref="
                       el => setRef(el, r, 7)
                     "
+                    @input="markDirty(row)"
                     @blur="saveRow(row)"
                   >
 
@@ -484,17 +492,17 @@ function createRow(no) {
 
     shinjakb: "",
 
-    suryo: ""
+    suryo: "",
+
+    _dirty: false
 
   }
 
 }
 
-
 const rows = ref([
   createRow(1)
 ])
-
 
 /* =========================
    行番号
@@ -511,7 +519,6 @@ function renumberRows() {
   )
 
 }
-
 
 /* =========================
    行挿入
@@ -534,12 +541,11 @@ async function insertRow(index) {
     const row of rows.value
   ) {
 
-    await saveRow(row)
+    await saveRow(row, true)
 
   }
 
 }
-
 
 /* =========================
    行削除
@@ -560,7 +566,6 @@ async function confirmDelete(index) {
 
   }
 
-
   const autono =
     rows.value[index].autono
 
@@ -570,7 +575,6 @@ async function confirmDelete(index) {
     1
   )
 
-
   if (autono) {
 
     await deleteRowDB(
@@ -579,15 +583,13 @@ async function confirmDelete(index) {
 
   }
 
-
   renumberRows()
-
 
   for (
     const row of rows.value
   ) {
 
-    await saveRow(row)
+    await saveRow(row, true)
 
   }
 
@@ -607,13 +609,11 @@ async function deleteRowDB(
 
 }
 
-
 /* =========================
    セル参照
 ========================= */
 
 const cellRefs = ref([])
-
 
 function setRef(
   el,
@@ -647,13 +647,11 @@ function focusCell(
 
 }
 
-
 /* =========================
    列数
 ========================= */
 
 const totalCols = 8
-
 
 /* =========================
    次へ
@@ -690,14 +688,12 @@ function moveNext(
 
   }
 
-
   focusCell(
     nr,
     nc
   )
 
 }
-
 
 /* =========================
    前へ
@@ -736,7 +732,6 @@ function movePrev(
   )
 
 }
-
 
 /* =========================
    上下
@@ -781,7 +776,6 @@ function moveVertical(
 
 }
 
-
 /* =========================
    キー操作
 ========================= */
@@ -822,7 +816,6 @@ function handleKey(
 
   }
 
-
   if (
     e.key === "Tab"
   ) {
@@ -845,7 +838,6 @@ function handleKey(
 
   }
 
-
   if (
     e.key === "ArrowRight" &&
     !isSelect
@@ -857,7 +849,6 @@ function handleKey(
 
   }
 
-
   if (
     e.key === "ArrowLeft" &&
     !isSelect
@@ -868,7 +859,6 @@ function handleKey(
     movePrev(r, c)
 
   }
-
 
   if (
     e.key === "ArrowDown" &&
@@ -884,7 +874,6 @@ function handleKey(
     )
 
   }
-
 
   if (
     e.key === "ArrowUp" &&
@@ -902,7 +891,6 @@ function handleKey(
   }
 
 }
-
 
 /* =========================
    DB → Vue
@@ -947,7 +935,9 @@ function setRowsFromDB(
           d.shinjakb ?? "",
 
         suryo:
-          d.suryo ?? ""
+          d.suryo ?? "",
+
+        _dirty: false
 
       })
     )
@@ -976,22 +966,23 @@ function setRowsFromDB(
 ========================= */
 
 async function saveRow(
-  row
+  row,
+  force = false
 ) {
   // 初期表示中は保存しない
   if (isInitializing.value) {
     return
   }
-  /*
-   * 未入力行は保存しない
-   */
-  if (
-    !row.kubetsu ||
-    !row.hinmoku
-  ) {
+
+  // 実際に変更していない場合は保存しない
+  if (!force && !row._dirty) {
     return
   }
-
+  
+  // 未入力行は保存しない
+  if (!row.kubetsu || !row.hinmoku) {
+    return
+  }
 
   try {
 
@@ -1070,20 +1061,25 @@ async function saveRow(
     lastSavedTantoshaname.value =
       res.data.tantoshaname ?? tantoshaname
 
+    // 保存済みにする
+    row._dirty = false
+
   } catch (e) {
 
     console.error(
       e.response?.data
     )
 
-    alert(
-      "保存失敗\n\n" + 
+    const message =
       e.response?.data?.message ||
-        e.message
+      e.message ||
+      "原因不明のエラー"
+
+    alert(
+      "保存失敗\n\n" +
+      message
     )
-
   }
-
 }
 
 
@@ -1100,7 +1096,7 @@ async function handleDragEnd() {
     const row of rows.value
   ) {
 
-    await saveRow(row)
+    await saveRow(row, true)
 
   }
 
@@ -1318,6 +1314,10 @@ window.addEventListener(
 
   }
 )
+
+function markDirty(row) {
+  row._dirty = true
+}
 
 </script>
 
