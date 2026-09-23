@@ -1326,14 +1326,25 @@ async function toggleMarker() {
   padding: 20px;
   display: flex;
   justify-content: center;
+
+  width: 100%;
+  box-sizing: border-box;
+
+  min-height: 100vh;
+  min-height: 100dvh;
+
+  overflow: hidden;
 }
 
 .content-area {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-}
 
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+}
 
 /* =========================
    ヘッダー
@@ -1385,9 +1396,19 @@ async function toggleMarker() {
   overflow-x: auto;
   overflow-y: auto;
 
+  width: 100%;
   max-width: 100%;
-  max-height:
-    calc(100vh - 80px);
+
+  max-height: calc(100vh - 80px);
+  max-height: calc(100dvh - 80px);
+
+  min-width: 0;
+  min-height: 0;
+
+  -webkit-overflow-scrolling: touch;
+
+  /* スマホでも上下左右にスクロール可能 */
+  touch-action: pan-x pan-y;
 }
 
 table {
