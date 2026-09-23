@@ -19,12 +19,11 @@
           </div>
         </div>
 
-        <button class="print-btn" @click="printTable">
+        <!--<button class="print-btn" @click="printTable">
           印刷
-        </button>
+        </button>-->
 
       </div>
-
 
       <!-- 最終更新 -->
       <div class="save-info">
@@ -32,11 +31,9 @@
         担当者：{{ lastSavedTantoshaname }}
       </div>
 
-
       <div class="report-subtitle">
         ◆お米、野菜、果物、特産品
       </div>
-
 
       <div class="table-wrap">
 
@@ -102,7 +99,6 @@
 
             </tr>
 
-
             <!-- 2段目 -->
             <tr>
 
@@ -149,7 +145,10 @@
 
 
                 <!-- 区別 -->
-                <td class="kubetsu-cell">
+                <td class="kubetsu-cell"
+                  :class="{ marked: row.mark1 === 1 }"
+                  @contextmenu.prevent="openMarkMenu($event, row, 1)"
+                >
 
                   <select
                     class="kubetsu-select"
@@ -180,7 +179,10 @@
 
 
                 <!-- 品目 -->
-                <td class="hinmoku-cell">
+                <td class="hinmoku-cell"
+                  :class="{ marked: row.mark2 === 1 }"
+                  @contextmenu.prevent="openMarkMenu($event, row, 2)"
+                >
 
                   <input
                     class="hinmoku-input"
@@ -199,7 +201,10 @@
 
 
                 <!-- 中国語 -->
-                <td class="chugokugo-cell">
+                <td class="chugokugo-cell"
+                  :class="{ marked: row.mark3 === 1 }"
+                  @contextmenu.prevent="openMarkMenu($event, row, 3)"
+                >
 
                   <input
                     class="chugokugo-input"
@@ -218,7 +223,10 @@
 
 
                 <!-- 地域名 -->
-                <td class="area-cell">
+                <td class="area-cell"
+                  :class="{ marked: row.mark4 === 1 }"
+                  @contextmenu.prevent="openMarkMenu($event, row, 4)"
+                >
 
                   <input
                     class="area-input"
@@ -237,7 +245,10 @@
 
 
                 <!-- 自然農法実施年数 -->
-                <td class="jissiyear-cell">
+                <td class="jissiyear-cell"
+                  :class="{ marked: row.mark5 === 1 }"
+                  @contextmenu.prevent="openMarkMenu($event, row, 5)"
+                >
 
                   <input
                     class="jissiyear-input"
@@ -256,7 +267,10 @@
 
 
                 <!-- 生産者名 -->
-                <td class="seisansha-cell">
+                <td class="seisansha-cell"
+                  :class="{ marked: row.mark6 === 1 }"
+                  @contextmenu.prevent="openMarkMenu($event, row, 6)"
+                >
 
                   <input
                     class="seisansha-input"
@@ -275,7 +289,10 @@
 
 
                 <!-- 信者/未信者 -->
-                <td class="shinjakb-cell">
+                <td class="shinjakb-cell"
+                  :class="{ marked: row.mark7 === 1 }"
+                  @contextmenu.prevent="openMarkMenu($event, row, 7)"
+                >
 
                   <select
                     class="shinjakb-select"
@@ -306,7 +323,10 @@
 
 
                 <!-- 数量 -->
-                <td class="suryo-cell">
+                <td class="suryo-cell"
+                  :class="{ marked: row.mark8 === 1 }"
+                  @contextmenu.prevent="openMarkMenu($event, row, 8)"
+                >
 
                   <input
                     class="suryo-input"
@@ -360,6 +380,23 @@
 
         </div>
 
+        <!-- マーカー用右クリックメニュー -->
+        <div
+          v-if="markMenu.visible"
+          class="context-menu"
+          :style="{
+            top: markMenu.y + 'px',
+            left: markMenu.x + 'px'
+          }"
+        >
+          <div
+            class="menu-item"
+            @click="toggleMarker"
+          >
+            マーカー
+          </div>
+        </div>
+
       </div>
 
     </div>
@@ -388,15 +425,12 @@ import draggable from "vuedraggable"
 /* =========================
    Router
 ========================= */
-
 const route = useRoute()
 const router = useRouter()
-
 
 /* =========================
    基本情報
 ========================= */
-
 const sname =
   route.query.sname ||
   localStorage.getItem("pref")
@@ -413,7 +447,6 @@ const year = 2025
 /* =========================
    最終更新
 ========================= */
-
 /*const lastSavedAt = ref(
   localStorage.getItem(
     "kaigaiLastSavedAt"
@@ -428,7 +461,6 @@ const isInitializing = ref(true)
 /* =========================
    区別
 ========================= */
-
 const kubetsuOptions = [
   "お米",
   "野菜",
@@ -440,7 +472,6 @@ const kubetsuOptions = [
 /* =========================
    右クリックメニュー
 ========================= */
-
 const menu = ref({
   visible: false,
   x: 0,
@@ -448,6 +479,25 @@ const menu = ref({
   rowIndex: null
 })
 
+const markMenu = ref({
+  visible: false,
+  x: 0,
+  y: 0,
+  row: null,
+  markNo: null
+})
+
+function openMarkMenu(e, row, markNo) {
+
+  markMenu.value.visible = true
+
+  markMenu.value.x = e.clientX
+  markMenu.value.y = e.clientY
+
+  markMenu.value.row = row
+  markMenu.value.markNo = markNo
+
+}
 
 function openContextMenu(
   e,
@@ -463,11 +513,9 @@ function openContextMenu(
 
 }
 
-
 /* =========================
    行生成
 ========================= */
-
 function createRow(no) {
 
   return {
@@ -494,6 +542,15 @@ function createRow(no) {
 
     suryo: "",
 
+    mark1: 0,
+    mark2: 0,
+    mark3: 0,
+    mark4: 0,
+    mark5: 0,
+    mark6: 0,
+    mark7: 0,
+    mark8: 0,
+
     _dirty: false
 
   }
@@ -507,7 +564,6 @@ const rows = ref([
 /* =========================
    行番号
 ========================= */
-
 function renumberRows() {
 
   rows.value.forEach(
@@ -523,7 +579,6 @@ function renumberRows() {
 /* =========================
    行挿入
 ========================= */
-
 async function insertRow(index) {
 
   menu.value.visible = false
@@ -535,7 +590,6 @@ async function insertRow(index) {
   )
 
   renumberRows()
-
 
   for (
     const row of rows.value
@@ -550,11 +604,9 @@ async function insertRow(index) {
 /* =========================
    行削除
 ========================= */
-
 async function confirmDelete(index) {
 
   menu.value.visible = false
-
 
   if (
     !confirm(
@@ -568,7 +620,6 @@ async function confirmDelete(index) {
 
   const autono =
     rows.value[index].autono
-
 
   rows.value.splice(
     index,
@@ -595,7 +646,6 @@ async function confirmDelete(index) {
 
 }
 
-
 async function deleteRowDB(
   autono
 ) {
@@ -612,7 +662,6 @@ async function deleteRowDB(
 /* =========================
    セル参照
 ========================= */
-
 const cellRefs = ref([])
 
 function setRef(
@@ -630,7 +679,6 @@ function setRef(
   cellRefs.value[r][c] = el
 
 }
-
 
 function focusCell(
   r,
@@ -650,13 +698,11 @@ function focusCell(
 /* =========================
    列数
 ========================= */
-
 const totalCols = 8
 
 /* =========================
    次へ
 ========================= */
-
 function moveNext(
   r,
   c
@@ -698,7 +744,6 @@ function moveNext(
 /* =========================
    前へ
 ========================= */
-
 function movePrev(
   r,
   c
@@ -736,7 +781,6 @@ function movePrev(
 /* =========================
    上下
 ========================= */
-
 function moveVertical(
   r,
   c,
@@ -746,7 +790,6 @@ function moveVertical(
   const nr =
     r + dir
 
-
   if (
     nr < 0
   ) {
@@ -754,7 +797,6 @@ function moveVertical(
     return
 
   }
-
 
   if (
     !rows.value[nr]
@@ -768,7 +810,6 @@ function moveVertical(
 
   }
 
-
   focusCell(
     nr,
     c
@@ -779,7 +820,6 @@ function moveVertical(
 /* =========================
    キー操作
 ========================= */
-
 function handleKey(
   e,
   r,
@@ -895,7 +935,6 @@ function handleKey(
 /* =========================
    DB → Vue
 ========================= */
-
 function setRowsFromDB(
   data
 ) {
@@ -937,17 +976,24 @@ function setRowsFromDB(
         suryo:
           d.suryo ?? "",
 
+        mark1: Number(d.mark1 ?? 0),
+        mark2: Number(d.mark2 ?? 0),
+        mark3: Number(d.mark3 ?? 0),
+        mark4: Number(d.mark4 ?? 0),
+        mark5: Number(d.mark5 ?? 0),
+        mark6: Number(d.mark6 ?? 0),
+        mark7: Number(d.mark7 ?? 0),
+        mark8: Number(d.mark8 ?? 0),
+
         _dirty: false
 
       })
     )
 
-
   /*
    * DBにデータがなければ
    * 新規1行
    */
-
   if (
     rows.value.length === 0
   ) {
@@ -960,11 +1006,9 @@ function setRowsFromDB(
 
 }
 
-
 /* =========================
    保存
 ========================= */
-
 async function saveRow(
   row,
   force = false
@@ -1028,12 +1072,20 @@ async function saveRow(
           suryo:
             row.suryo,
 
+          mark1: row.mark1,
+          mark2: row.mark2,
+          mark3: row.mark3,
+          mark4: row.mark4,
+          mark5: row.mark5,
+          mark6: row.mark6,
+          mark7: row.mark7,
+          mark8: row.mark8,
+
           // 保存した担当者
           tantoshaname
 
         }
       )
-
 
     /*
      * INSERT後
@@ -1082,11 +1134,9 @@ async function saveRow(
   }
 }
 
-
 /* =========================
    ドラッグ終了
 ========================= */
-
 async function handleDragEnd() {
 
   renumberRows()
@@ -1102,11 +1152,9 @@ async function handleDragEnd() {
 
 }
 
-
 /* =========================
    印刷
 ========================= */
-
 function printTable() {
 
   localStorage.setItem(
@@ -1115,7 +1163,6 @@ function printTable() {
       rows.value
     )
   )
-
 
   const url =
     router.resolve({
@@ -1130,86 +1177,18 @@ function printTable() {
 
 }
 
-
 /* =========================
    戻る
 ========================= */
-
 function goBack() {
 
   router.back()
 
 }
 
-
 /* =========================
    初期処理
 ========================= */
-
-/*onMounted(
-  async () => {
-
-    try {
-
-      const res =
-        await axios.get(
-          "/api/kaigai",
-          {
-            params: {
-              sname,
-              shozokuid,
-              year
-            }
-          }
-        )
-
-
-      console.log(
-        res.data
-      )
-
-
-      setRowsFromDB(
-        res.data
-      )
-
-
-      if (
-        res.data.length > 0
-      ) {
-
-        lastSavedAt.value =
-          res.data[0].updatedt ??
-          ""
-
-      }
-
-
-      nextTick(
-        () => {
-
-          focusCell(
-            0,
-            0
-          )
-
-        }
-      )
-
-
-    } catch (e) {
-
-      console.error(e)
-
-      alert(
-        "データ取得に失敗しました"
-      )
-
-    }
-
-  }
-)*/
-
 async function loadLastSaved() {
   try {
     const res = await axios.get(
@@ -1265,12 +1244,10 @@ onMounted(
         res.data
       )
 
-
       // =========================
       // 最終更新情報取得
       // =========================
       await loadLastSaved()
-
 
       // =========================
       // 初期フォーカス
@@ -1304,14 +1281,11 @@ onMounted(
 /* =========================
    メニューを閉じる
 ========================= */
-
 window.addEventListener(
   "click",
   () => {
-
-    menu.value.visible =
-      false
-
+    menu.value.visible = false
+    markMenu.value.visible = false
   }
 )
 
@@ -1319,8 +1293,32 @@ function markDirty(row) {
   row._dirty = true
 }
 
-</script>
+async function toggleMarker() {
 
+  const row = markMenu.value.row
+  const markNo = markMenu.value.markNo
+
+  if (!row || !markNo) {
+    return
+  }
+
+  const key = `mark${markNo}`
+
+  // 0 → 1
+  // 1 → 0
+  row[key] =
+    Number(row[key]) === 1
+      ? 0
+      : 1
+
+  markMenu.value.visible = false
+
+  // マーカー変更は強制保存
+  await saveRow(row, true)
+
+}
+
+</script>
 
 <style scoped>
 
@@ -1735,6 +1733,21 @@ select:focus {
 .print-btn:hover,
 .back-btn:hover {
   background: #eaeaea;
+}
+
+.marked {
+  background-color: rgb(255, 255, 255) !important;
+  color: white;
+}
+
+.marked input,
+.marked select {
+  background-color: rgb(255, 178, 195) !important;
+  color: white;
+}
+
+.marked input::placeholder {
+  color: white;
 }
 
 </style>

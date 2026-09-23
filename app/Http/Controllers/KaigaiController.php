@@ -36,30 +36,26 @@ class KaigaiController extends Controller
             'no'        => $row['no'],
 
             'excelno'   => $row['excelno'] ?? null,
-
             'kubetsu'   => $row['kubetsu'],
             'hinmoku'   => $row['hinmoku'],
+            'chugokugo' => $row['chugokugo'] ?? '',
+            'chiikimei' => $row['chiikimei'] ?? '',
+            'jissiyear' => $row['jissiyear'] ?? '',
+            'seisansha' => $row['seisansha'] ?? '',
+            'shinjakb' => $row['shinjakb'] ?? '',
+            'suryo' => $row['suryo'] ?? '',
 
-            'chugokugo' =>
-                $row['chugokugo'] ?? '',
+            'tantoshaname' => $row['tantoshaname'] ?? '',
 
-            'chiikimei' =>
-                $row['chiikimei'] ?? '',
+            'mark1' => $row['mark1'] ?? 0,
+            'mark2' => $row['mark2'] ?? 0,
+            'mark3' => $row['mark3'] ?? 0,
+            'mark4' => $row['mark4'] ?? 0,
+            'mark5' => $row['mark5'] ?? 0,
+            'mark6' => $row['mark6'] ?? 0,
+            'mark7' => $row['mark7'] ?? 0,
+            'mark8' => $row['mark8'] ?? 0,
 
-            'jissiyear' =>
-                $row['jissiyear'] ?? '',
-
-            'seisansha' =>
-                $row['seisansha'] ?? '',
-
-            'shinjakb' =>
-                $row['shinjakb'] ?? '',
-
-            'suryo' =>
-                $row['suryo'] ?? '',
-
-            'tantoshaname' =>
-                $row['tantoshaname'] ?? '',
         ];
 
 
