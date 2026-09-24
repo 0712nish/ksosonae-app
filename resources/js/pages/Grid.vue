@@ -286,9 +286,9 @@ async function insertRow(index) {
 
   renumberRows()
 
-  for (const row of rows.value) {
-    await saveRow(row, true)
-  }
+  //for (const row of rows.value) {
+  //  await saveRow(row, true)
+  //}
 
   menu.value.visible = false
 }

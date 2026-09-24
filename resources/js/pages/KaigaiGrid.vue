@@ -1,46 +1,34 @@
 <template>
   <div class="grid">
     <div class="content-area">
-
       <!-- ヘッダー -->
       <div class="header-area">
-
         <button class="back-btn" @click="goBack">
           戻る
         </button>
-
         <div class="title-area">
           <h1 class="report-title">
             感謝祭お供え報告書
           </h1>
-
           <div class="report-subtitle">
             所属【　{{ sname }}　】
           </div>
         </div>
-
-        <!--<button class="print-btn" @click="printTable">
+        <button class="print-btn" @click="printTable">
           印刷
-        </button>-->
-
+        </button>
       </div>
-
       <!-- 最終更新 -->
       <div class="save-info">
         最終更新 {{ lastSavedAt }}<br>
         担当者：{{ lastSavedTantoshaname }}
       </div>
-
       <div class="report-subtitle">
         ◆お米、野菜、果物、特産品
       </div>
-
       <div class="table-wrap">
-
         <table>
-
           <colgroup>
-
             <col class="col-no">
             <col class="col-kubetsu">
             <col class="col-hinmoku">
@@ -50,77 +38,53 @@
             <col class="col-seisansha">
             <col class="col-shinjakb">
             <col class="col-suryo">
-
           </colgroup>
-
-
           <thead>
-
             <!-- 1段目 -->
             <tr>
-
               <th rowspan="2" class="no-header">
                 No
               </th>
-
               <th rowspan="2" class="kubetsu-header">
                 区別
               </th>
-
               <th rowspan="2" class="hinmoku-header">
                 品　目
               </th>
-
               <th rowspan="2" class="chugokugo-header">
                 中国語
               </th>
-
               <th rowspan="2" class="area-header">
                 地域名
               </th>
-
               <th rowspan="2" class="jissiyear-header">
                 自然農法<br>
                 実施年数
               </th>
-
               <th rowspan="2" class="seisansha-header">
                 生産者名
               </th>
-
               <th rowspan="2" class="shinjakb-header">
                 信者<br>
                 未信者
               </th>
-
               <th class="quantity-header">
                 数量
               </th>
-
             </tr>
-
             <!-- 2段目 -->
             <tr>
-
               <th class="suryo-header">
-
                 野菜(kg)、果物(kg×箱数)、特産(個数×箱数)<br>
-
                 <span>
                   20日　締切
                 </span>
-
                 <div class="correction-text">
                   変更後はすぐに訂正報告
                 </div>
-
               </th>
-
             </tr>
-
           </thead>
-
-
           <draggable
             v-model="rows"
             item-key="autono"
@@ -128,11 +92,8 @@
             handle=".no-cell"
             @end="handleDragEnd"
           >
-
             <template #item="{ element: row, index: r }">
-
               <tr>
-
                 <!-- No -->
                 <td
                   class="no-cell"
@@ -142,29 +103,19 @@
                 >
                   {{ row.no }}
                 </td>
-
-
                 <!-- 区別 -->
                 <td class="kubetsu-cell"
                   :class="{ marked: row.mark1 === 1 }"
                   @contextmenu.prevent="openMarkMenu($event, row, 1)"
                 >
-
                   <select
                     class="kubetsu-select"
-                    v-model="row.kubetsu"
-                    @keydown="
-                      handleKey($event, r, 0)
-                    "
-                    :ref="
-                      el => setRef(el, r, 0)
-                    "
+                    v-model="row.kubetsu"@keydown="handleKey($event, r, 0)"
+                    :ref="el => setRef(el, r, 0)"
                     @change="markDirty(row)"
                     @blur="saveRow(row)"
                   >
-
                     <option value=""></option>
-
                     <option
                       v-for="opt in kubetsuOptions"
                       :key="opt"
@@ -172,18 +123,13 @@
                     >
                       {{ opt }}
                     </option>
-
                   </select>
-
                 </td>
-
-
                 <!-- 品目 -->
                 <td class="hinmoku-cell"
                   :class="{ marked: row.mark2 === 1 }"
                   @contextmenu.prevent="openMarkMenu($event, row, 2)"
                 >
-
                   <input
                     class="hinmoku-input"
                     v-model="row.hinmoku"
@@ -196,16 +142,12 @@
                     @input="markDirty(row)"
                     @blur="saveRow(row)"
                   >
-
                 </td>
-
-
                 <!-- 中国語 -->
                 <td class="chugokugo-cell"
                   :class="{ marked: row.mark3 === 1 }"
                   @contextmenu.prevent="openMarkMenu($event, row, 3)"
                 >
-
                   <input
                     class="chugokugo-input"
                     v-model="row.chugokugo"
@@ -218,140 +160,85 @@
                     @input="markDirty(row)"
                     @blur="saveRow(row)"
                   >
-
                 </td>
-
-
                 <!-- 地域名 -->
                 <td class="area-cell"
                   :class="{ marked: row.mark4 === 1 }"
                   @contextmenu.prevent="openMarkMenu($event, row, 4)"
                 >
-
                   <input
                     class="area-input"
                     v-model="row.chiikimei"
-                    @keydown="
-                      handleKey($event, r, 3)
-                    "
-                    :ref="
-                      el => setRef(el, r, 3)
-                    "
+                    @keydown="handleKey($event, r, 3)"
+                    :ref="el => setRef(el, r, 3)"
                     @input="markDirty(row)"
                     @blur="saveRow(row)"
                   >
-
                 </td>
-
-
                 <!-- 自然農法実施年数 -->
                 <td class="jissiyear-cell"
                   :class="{ marked: row.mark5 === 1 }"
                   @contextmenu.prevent="openMarkMenu($event, row, 5)"
                 >
-
                   <input
                     class="jissiyear-input"
                     v-model="row.jissiyear"
-                    @keydown="
-                      handleKey($event, r, 4)
-                    "
-                    :ref="
-                      el => setRef(el, r, 4)
-                    "
+                    @keydown="handleKey($event, r, 4)"
+                    :ref="el => setRef(el, r, 4)"
                     @input="markDirty(row)"
                     @blur="saveRow(row)"
                   >
-
                 </td>
-
-
                 <!-- 生産者名 -->
                 <td class="seisansha-cell"
                   :class="{ marked: row.mark6 === 1 }"
                   @contextmenu.prevent="openMarkMenu($event, row, 6)"
                 >
-
                   <input
                     class="seisansha-input"
                     v-model="row.seisansha"
-                    @keydown="
-                      handleKey($event, r, 5)
-                    "
-                    :ref="
-                      el => setRef(el, r, 5)
-                    "
+                    @keydown="handleKey($event, r, 5)"
+                    :ref="el => setRef(el, r, 5)"
                     @input="markDirty(row)"
                     @blur="saveRow(row)"
                   >
-
                 </td>
-
-
                 <!-- 信者/未信者 -->
                 <td class="shinjakb-cell"
                   :class="{ marked: row.mark7 === 1 }"
                   @contextmenu.prevent="openMarkMenu($event, row, 7)"
                 >
-
                   <select
                     class="shinjakb-select"
                     v-model="row.shinjakb"
-                    @keydown="
-                      handleKey($event, r, 6)
-                    "
-                    :ref="
-                      el => setRef(el, r, 6)
-                    "
+                    @keydown="handleKey($event, r, 6)"
+                    :ref="el => setRef(el, r, 6)"
                     @change="markDirty(row)"
                     @blur="saveRow(row)"
                   >
-
                     <option value=""></option>
-
-                    <option value="信者">
-                      信者
-                    </option>
-
-                    <option value="未信者">
-                      未信者
-                    </option>
-
+                    <option value="信者">信者</option>
+                    <option value="未信者">未信者</option>
                   </select>
-
                 </td>
-
-
                 <!-- 数量 -->
                 <td class="suryo-cell"
                   :class="{ marked: row.mark8 === 1 }"
                   @contextmenu.prevent="openMarkMenu($event, row, 8)"
                 >
-
                   <input
                     class="suryo-input"
                     v-model="row.suryo"
-                    @keydown="
-                      handleKey($event, r, 7)
-                    "
-                    :ref="
-                      el => setRef(el, r, 7)
-                    "
+                    @keydown="handleKey($event, r, 7)"
+                    :ref="el => setRef(el, r, 7)"
                     @input="markDirty(row)"
                     @blur="saveRow(row)"
                   >
-
                 </td>
-
               </tr>
-
             </template>
-
           </draggable>
-
         </table>
-
-
         <!-- 右クリックメニュー -->
         <div
           v-if="menu.visible"
@@ -361,14 +248,12 @@
             left: menu.x + 'px'
           }"
         >
-
           <div
             class="menu-item"
             @click="insertRow(menu.rowIndex)"
           >
             行挿入
           </div>
-
           <div
             class="menu-item danger"
             @click="
@@ -377,9 +262,7 @@
           >
             行削除
           </div>
-
         </div>
-
         <!-- マーカー用右クリックメニュー -->
         <div
           v-if="markMenu.visible"
@@ -396,13 +279,10 @@
             マーカー
           </div>
         </div>
-
       </div>
-
     </div>
   </div>
 </template>
-
 
 <script setup>
 
@@ -591,13 +471,9 @@ async function insertRow(index) {
 
   renumberRows()
 
-  for (
-    const row of rows.value
-  ) {
-
-    await saveRow(row, true)
-
-  }
+  //for (const row of rows.value) {
+  //  await saveRow(row, true)
+  //}
 
 }
 
@@ -1156,25 +1032,22 @@ async function handleDragEnd() {
    印刷
 ========================= */
 function printTable() {
+  
+  localStorage.setItem(
+    "printKaigaiRows",
+    JSON.stringify(rows.value)
+  )
 
   localStorage.setItem(
-    "kaigaiPrintRows",
-    JSON.stringify(
-      rows.value
-    )
+    "printKaigaiSname",
+    sname
   )
 
-  const url =
-    router.resolve({
-      path: "/kaigai-print"
-    }).href
+  const url = router.resolve({
+    path: "/kaigai-print"
+  }).href
 
-
-  window.open(
-    url,
-    "_blank"
-  )
-
+  window.open(url, "_blank")
 }
 
 /* =========================

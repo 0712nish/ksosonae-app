@@ -39,12 +39,16 @@
     <td rowspan="2">うるち</td>
     <td>俵(60kg)</td>
     <td class="input-cell">
-      <input
-        type="number"
-        v-model="rice.tawara1"
-        @input="markDirty"
-        @blur="saveRice"
-      >
+      <div class="input-with-unit">
+        <input
+          type="number"
+          v-model="rice.tawara1"
+          @input="markDirty"
+          @blur="saveRice"
+          @keydown.enter="moveNext"
+        >
+        <span class="unit">俵</span>
+      </div>
     </td>
     <td>
       <input
@@ -53,6 +57,7 @@
         v-model="rice.tawara3"
         @input="markDirty"
         @blur="saveRice"
+        @keydown.enter="moveNext"
       >
     </td>
   </tr>
@@ -60,12 +65,16 @@
   <tr>
     <td>袋(30kg)</td>
     <td class="input-cell">
-      <input
-        type="number"
-        v-model="rice.fukuro1"
-        @input="markDirty"
-        @blur="saveRice"
-      >
+      <div class="input-with-unit">
+        <input
+          type="number"
+          v-model="rice.fukuro1"
+          @input="markDirty"
+          @blur="saveRice"
+          @keydown.enter="moveNext"
+        >
+        <span class="unit">袋</span>
+      </div>
     </td>
     <td>
       <input
@@ -74,6 +83,7 @@
         v-model="rice.fukuro3"
         @input="markDirty"
         @blur="saveRice"
+        @keydown.enter="moveNext"
       >
     </td>
   </tr>
@@ -81,12 +91,16 @@
     <td rowspan="2">もち</td>
     <td>俵(60kg)</td>
     <td class="input-cell">
-      <input
-        type="number"
-        v-model="rice.tawara2"
-        @input="markDirty"
-        @blur="saveRice"
-      >
+      <div class="input-with-unit">
+        <input
+          type="number"
+          v-model="rice.tawara2"
+          @input="markDirty"
+          @blur="saveRice"
+          @keydown.enter="moveNext"
+        >
+        <span class="unit">俵</span>
+      </div>
     </td>
     <td>
       <input
@@ -95,6 +109,7 @@
         v-model="rice.tawara4"
         @input="markDirty"
         @blur="saveRice"
+        @keydown.enter="moveNext"
       >
     </td>
   </tr>
@@ -102,12 +117,16 @@
   <tr>
     <td>袋(30kg)</td>
     <td class="input-cell">
-      <input
-        type="number"
-        v-model="rice.fukuro2"
-        @input="markDirty"
-        @blur="saveRice"
-      >
+      <div class="input-with-unit">
+        <input
+          type="number"
+          v-model="rice.fukuro2"
+          @input="markDirty"
+          @blur="saveRice"
+          @keydown.enter="moveNext"
+        >
+        <span class="unit">袋</span>
+      </div>
     </td>
     <td>
       <input
@@ -116,6 +135,7 @@
         v-model="rice.fukuro4"
         @input="markDirty"
         @blur="saveRice"
+        @keydown.enter="moveNext"
       >
     </td>
   </tr>
@@ -126,7 +146,7 @@
 
 <script setup>
 import axios from "axios"
-import { reactive, ref, onMounted } from "vue"
+import { reactive, ref, onMounted, nextTick } from "vue"
 import { useRouter } from "vue-router"
 
 const router = useRouter()
@@ -223,7 +243,18 @@ async function saveRice() {
 }
 
 onMounted(async () => {
+
   await loadRice()
+
+  // 初期カーソルを tawara1 にする
+  await nextTick()
+
+  const firstInput =
+    document.querySelector(".rice-table input")
+
+  firstInput?.focus()
+  firstInput?.select()
+
 })
 
 function goBack() {
@@ -255,6 +286,35 @@ function printTable() {
   }).href
 
   window.open(url, "_blank")
+}
+
+function moveNext(e) {
+
+  e.preventDefault()
+
+  const inputs = Array.from(
+    document.querySelectorAll(".rice-table input")
+  )
+
+  const index = inputs.indexOf(e.target)
+
+  if (index === -1) {
+    return
+  }
+
+  // 最後の入力欄なら最初に戻る
+  const nextIndex =
+    index + 1 >= inputs.length
+      ? 0
+      : index + 1
+
+  const next = inputs[nextIndex]
+
+  if (next) {
+    next.focus()
+    next.select()
+  }
+
 }
 
 </script>
@@ -347,23 +407,52 @@ function printTable() {
   text-align: right;
 }
 
+.rice-table input:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 2px #4cafef;
+}
+
 .rice-title {
   margin-top: 20px;
   margin-bottom: 10px;
 }
 
 .rice-table input[type="text"] {
-  width: 200px;
+  width: calc(100% - 100px);
   display: block;
   margin: 0 auto;
-  font-size: 18px;
+  box-sizing: border-box;
+  font-size: 20px;
 }
 
 .rice-table input[type="number"] {
-  width: 80px;
+  width: 200px;
   display: block;
   margin: 0 auto;
-  font-size: 18px;
+  font-size: 25px;
+}
+
+.input-with-unit {
+  position: relative;
+  /*width: calc(100% - 10px); */
+  width: 200px;
+  margin: 0 auto;
+}
+
+.input-with-unit input {
+  width: 100% !important;
+  box-sizing: border-box;
+  padding-right: 35px;
+  padding-bottom: 5px;
+}
+
+.input-with-unit .unit {
+  position: absolute;
+  right: 6px;
+  bottom: 4px;
+  font-size: 20px;
+  color: #555;
+  pointer-events: none;
 }
 
 </style>

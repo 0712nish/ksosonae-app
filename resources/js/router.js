@@ -11,6 +11,7 @@ import Print from "./pages/Print.vue"
 import RiceGrid from "./pages/RiceGrid.vue"
 import RicePrint from "./pages/RicePrint.vue"
 import KaigaiGrid from "./pages/KaigaiGrid.vue"
+import KaigaiPrint from "./pages/KaigaiPrint.vue"
 
 const routes = [
   { path: "/login", name: "login", component: LoginPage },
@@ -20,6 +21,7 @@ const routes = [
   { path: "/ricegrid", name: "ricegrid", component: RiceGrid },
   { path: "/rice-print", name: "rice-print", component: RicePrint },
   { path: "/kaigaigrid", name: "kaigaigrid", component: KaigaiGrid },
+  { path: "/kaigai-print", name: "kaigai-print", component: KaigaiPrint },
   /*{ path: "/app", name: "app", component: MainApp },
   { path: "/app20", name: "app20", component: Main20App },
   { path: "/app25", name: "app25", component: Main25App },

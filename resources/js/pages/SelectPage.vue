@@ -1,56 +1,24 @@
 <template>
   <div class="select-wrapper">
-
     <div class="select-card">
       <h2 class="title">お米 or 野菜を選択してください</h2>
-
       <div class="radio-group">
-
         <label class="radio-item">
           <input type="radio" value="1" v-model="selected" />
           <span>お米</span>
         </label>
-
         <label class="radio-item">
           <input type="radio" value="2" v-model="selected" />
           <span>野菜,果物,特産品</span>
         </label>
-
       </div>
-
-<!--
-      <h2 class="title">入力する日付を選択してください</h2>
-
-      <div class="radio-group">
-
-        <label class="radio-item">
-          <input type="radio" value="20" v-model="selected" />
-          <span>20日</span>
-        </label>
-
-        <label class="radio-item">
-          <input type="radio" value="25" v-model="selected" />
-          <span>25日</span>
-        </label>
-
-        <label class="radio-item">
-          <input type="radio" value="28" v-model="selected" />
-          <span>28日</span>
-        </label>
-
-        <label class="radio-item">
-          <input type="radio" value="ALL" v-model="selected" />
-          <span>ALL</span>
-        </label>
-
-      </div>
--->
       <button class="next-btn" @click="goNext">
         次へ
       </button>
-
+      <button class="logout-btn" @click="logout">
+        ログアウト
+      </button>
     </div>
-
   </div>
 </template>
 
@@ -92,6 +60,17 @@ const goNext = () => {
   }
 
 }
+
+const logout = () => {
+  localStorage.removeItem("loggedIn")
+  localStorage.removeItem("shozokuid")
+  localStorage.removeItem("reigaiflg")
+  localStorage.removeItem("pref")
+  localStorage.removeItem("tantoshaname")
+
+  router.push("/login")
+}
+
 </script>
 
 <style scoped>
@@ -160,4 +139,26 @@ const goNext = () => {
   background: #1d4ed8;
   transform: translateY(-1px);
 }
+
+.logout-btn {
+  display: block;
+  margin: 15px 0 0 auto;
+
+  padding: 6px 16px;
+
+  background: #fff;
+  color: #555;
+
+  border: 1px solid #bbb;
+  border-radius: 6px;
+
+  font-size: 13px;
+
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background: #f3f3f3;
+}
+
 </style>

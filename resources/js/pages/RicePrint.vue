@@ -1,20 +1,15 @@
 <template>
   <div class="print-area">
-
     <h1 class="report-title">
       感謝祭お供え報告書
     </h1>
-
     <div class="report-subtitle">
       所属【 {{ sname }} 】
     </div>
-
     <div class="rice-title">
       ◆お米
     </div>
-
     <table class="rice-table">
-
       <thead>
         <tr>
           <th></th>
@@ -23,78 +18,53 @@
           <th>左記以外×数量</th>
         </tr>
       </thead>
-
       <tbody>
-
         <!-- うるち 俵 -->
         <tr>
           <td rowspan="2">うるち</td>
-
           <td>俵(60kg)</td>
-
           <td>
-            {{ rice.tawara1 }}
+            {{ rice.tawara1 }}　俵
           </td>
-
           <td>
             {{ rice.tawara3 }}
           </td>
         </tr>
-
         <!-- うるち 袋 -->
         <tr>
-
           <td>袋(30kg)</td>
-
           <td>
-            {{ rice.fukuro1 }}
+            {{ rice.fukuro1 }}　袋
           </td>
-
           <td>
             {{ rice.fukuro3 }}
           </td>
-
         </tr>
-
         <!-- もち 俵 -->
         <tr>
-
           <td rowspan="2">もち</td>
-
           <td>俵(60kg)</td>
-
           <td>
-            {{ rice.tawara2 }}
+            {{ rice.tawara2 }}　俵
           </td>
-
           <td>
             {{ rice.tawara4 }}
           </td>
-
         </tr>
-
         <!-- もち 袋 -->
         <tr>
-
           <td>袋(30kg)</td>
-
           <td>
-            {{ rice.fukuro2 }}
+            {{ rice.fukuro2 }}　袋
           </td>
-
           <td>
             {{ rice.fukuro4 }}
           </td>
-
         </tr>
-
       </tbody>
-
     </table>
-
   </div>
 </template>
-
 
 <script setup>
 
@@ -145,16 +115,13 @@ onMounted(async () => {
 
 })
 
-
 </script>
-
 
 <style scoped>
 
 .print-area {
   padding: 20px;
 }
-
 
 /* ===== タイトル ===== */
 
@@ -181,7 +148,6 @@ onMounted(async () => {
   margin-bottom: 10px;
 }
 
-
 /* ===== お米テーブル ===== */
 
 .rice-table {
@@ -206,7 +172,6 @@ onMounted(async () => {
   height: 60px;
   font-size: 18px;
 }
-
 
 /* ===== 印刷 ===== */
 
