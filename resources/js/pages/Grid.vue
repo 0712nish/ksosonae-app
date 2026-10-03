@@ -620,13 +620,13 @@ function isEditable(date) {
 
   const today = new Date()
 
-  const d1 = new normalize(editTable.value[0].editdt)
-  const d2 = new normalize(editTable.value[1].editdt)
-  const d3 = new normalize(editTable.value[2].editdt)
-  const d4 = new normalize(editTable.value[3].editdt)
-  const d5 = new normalize(editTable.value[4].editdt)
-  const d6 = new normalize(editTable.value[5].editdt)
-  const d7 = new normalize(editTable.value[6].editdt)
+  const d1 = new normalize(editTable.value[1].editdt)
+  const d2 = new normalize(editTable.value[2].editdt)
+  const d3 = new normalize(editTable.value[3].editdt)
+  const d4 = new normalize(editTable.value[4].editdt)
+  const d5 = new normalize(editTable.value[5].editdt)
+  const d6 = new normalize(editTable.value[6].editdt)
+  const d7 = new normalize(editTable.value[7].editdt)
 
   if (date === "20日") {
     return today > d1 && today <= d2

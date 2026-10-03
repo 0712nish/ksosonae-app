@@ -154,7 +154,7 @@ const router = useRouter()
 const sname = localStorage.getItem("pref")
 const shozokuid = localStorage.getItem("shozokuid")
 const tantoshaname = localStorage.getItem("tantoshaname") || ""
-const year = 2025
+const year = ref(null)
 
 const lastSavedAt = ref("")
 const lastSavedTantoshaname = ref("")
@@ -184,7 +184,7 @@ async function loadRice() {
     {
       params: {
         shozokuid,
-        year
+        year: year.value
       }
     }
   )
@@ -217,7 +217,7 @@ async function saveRice() {
     "/api/osonaerice/save",
     {
       shozokuid,
-      year,
+      year: year.value,
 
       // 保存した担当者
       tantoshaname,
@@ -244,16 +244,82 @@ async function saveRice() {
 
 onMounted(async () => {
 
-  await loadRice()
+  try {
 
-  // 初期カーソルを tawara1 にする
-  await nextTick()
+    /*
+     * editdate テーブル取得
+     */
+    const resEdit = await axios.get(
+      "/api/editdate"
+    )
 
-  const firstInput =
-    document.querySelector(".rice-table input")
+    const editTable = resEdit.data
 
-  firstInput?.focus()
-  firstInput?.select()
+
+    /*
+     * no = 0 の editdt を取得
+     */
+    const yearRow = editTable.find(
+      d => Number(d.no) === 0
+    )
+
+
+    if (!yearRow || !yearRow.editdt) {
+
+      alert(
+        "編集日付テーブルの年度を取得できません"
+      )
+
+      return
+
+    }
+
+
+    /*
+     * editdt から年度を取得
+     */
+    year.value = new Date(
+      yearRow.editdt
+    ).getFullYear()
+
+
+    console.log(
+      "RiceGrid 取得年度:",
+      year.value
+    )
+
+
+    /*
+     * お米データ取得
+     */
+    await loadRice()
+
+
+    /*
+     * 初期カーソルを tawara1 にする
+     */
+    await nextTick()
+
+    const firstInput =
+      document.querySelector(
+        ".rice-table input"
+      )
+
+    firstInput?.focus()
+    firstInput?.select()
+
+  } catch (e) {
+
+    console.error(
+      "RiceGrid 初期処理エラー:",
+      e
+    )
+
+    alert(
+      "データ取得に失敗しました"
+    )
+
+  }
 
 })
 

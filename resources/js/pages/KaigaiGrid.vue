@@ -700,7 +700,7 @@ const shozokuid =
 const tantoshaname =
   localStorage.getItem("tantoshaname") || ""
 
-const year = 2025
+const year = ref(null)
 
 
 /* =========================
@@ -1633,7 +1633,7 @@ async function saveRow(
 
           shozokuid,
 
-          year,
+          year: year.value,
 
           no:
             row.no,
@@ -1827,7 +1827,7 @@ async function loadLastSaved() {
         {
           params: {
             shozokuid,
-            year
+            year: year.value
           }
         }
       )
@@ -1863,6 +1863,10 @@ async function loadLastSaved() {
    初期処理
 ========================= */
 
+/* =========================
+   初期処理
+========================= */
+
 onMounted(
   async () => {
 
@@ -1871,8 +1875,54 @@ onMounted(
       /*
        * 初期表示中
        */
-      isInitializing.value =
-        true
+      isInitializing.value = true
+
+
+      /*
+       * editdate テーブル取得
+       */
+      const resEdit =
+        await axios.get(
+          "/api/editdate"
+        )
+
+      const editTable =
+        resEdit.data
+
+
+      /*
+       * no = 0 の editdt から年度取得
+       */
+      const yearRow =
+        editTable.find(
+          d => Number(d.no) === 0
+        )
+
+
+      if (
+        !yearRow ||
+        !yearRow.editdt
+      ) {
+
+        alert(
+          "編集日付テーブルの年度を取得できません"
+        )
+
+        return
+
+      }
+
+
+      year.value =
+        new Date(
+          yearRow.editdt
+        ).getFullYear()
+
+
+      console.log(
+        "取得した年度:",
+        year.value
+      )
 
 
       /*
@@ -1885,7 +1935,7 @@ onMounted(
             params: {
               sname,
               shozokuid,
-              year
+              year: year.value
             }
           }
         )
@@ -1923,8 +1973,7 @@ onMounted(
       /*
        * 初期表示終了
        */
-      isInitializing.value =
-        false
+      isInitializing.value = false
 
     } catch (e) {
 
@@ -1934,14 +1983,12 @@ onMounted(
         "データ取得に失敗しました"
       )
 
-      isInitializing.value =
-        false
+      isInitializing.value = false
 
     }
 
   }
 )
-
 
 /* =========================
    メニューを閉じる
