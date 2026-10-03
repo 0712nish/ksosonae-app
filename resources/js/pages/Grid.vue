@@ -250,6 +250,9 @@ const mode = route.query.mode
 const shozokuid = localStorage.getItem("shozokuid")
 const reigaiflg = Number(localStorage.getItem("reigaiflg") || 0)
 
+// 年度（editdateのno=0から取得）
+const year = ref(null)
+
 // 最終保存日時
 //const lastSavedAt = ref(localStorage.getItem("lastSavedAt") || "")
 const lastSavedAt = ref("")
@@ -767,7 +770,7 @@ async function saveRow(row, force = false) {
         autono: row.autono,
 
         shozokuid,
-        year: 2025,
+        year: year.value,
 
         no: row.no,
         kubetsu: row.kubetsu,
@@ -808,7 +811,7 @@ async function saveAllRows() {
     "/api/osonae/replaceAll",
     {
       shozokuid,
-      year: 2025,
+      year: year.value,
       rows: rows.value
     }
   )
@@ -849,18 +852,42 @@ onMounted(async () => {
 
   console.log("onMounted start")
 
+  // =========================
+  // 編集日付取得
+  // =========================
   const resEdit = await axios.get("/api/editdate")
   console.log(resEdit.data)
+
   editTable.value = resEdit.data
 
+  // =========================
+  // no = 0 の editdt から年度を取得
+  // =========================
+  const yearRow = editTable.value.find(
+    d => Number(d.no) === 0
+  )
+
+  if (!yearRow || !yearRow.editdt) {
+    alert("編集日付テーブルの年度を取得できません")
+    return
+  }
+
+  year.value = new Date(yearRow.editdt).getFullYear()
+
+  console.log("対象年度:", year.value)
+
+  // =========================
+  // 明細データ取得
+  // =========================
   const sname = localStorage.getItem("pref")
-  /*const year = new Date().getFullYear()*/
-  const year = 2025
 
   const res = await axios.get(
     "/api/osonae",
     {
-      params: { sname, year }
+      params: {
+        sname,
+        year: year.value
+      }
     }
   )
 
@@ -868,27 +895,34 @@ onMounted(async () => {
 
   setRowsFromDB(res.data)
 
-  // 最後に保存した日時・担当者を取得
+  // =========================
+  // 最終保存日時・担当者取得
+  // =========================
   const lastRes = await axios.get(
     "/api/osonae/last-saved",
     {
       params: {
         shozokuid,
-        year
+        year: year.value
       }
     }
   )
 
   if (lastRes.data) {
     lastSavedAt.value = lastRes.data.updatedt || ""
-    lastSavedTantoshaname.value = lastRes.data.tantoshaname || ""
+    lastSavedTantoshaname.value =
+      lastRes.data.tantoshaname || ""
   }
+
+  // =========================
   // 初期カーソル
-  nextTick(() => {
-    focusCell(0, 0)
-  })
-  
+  // =========================
+  await nextTick()
+  focusCell(0, 0)
+
 })
+
+
 
 window.addEventListener("click", () => {
   menu.value.visible = false
