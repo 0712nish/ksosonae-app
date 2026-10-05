@@ -2180,7 +2180,7 @@ async function toggleMarker() {
 
   font-size: 11px;
 
-  color: #777;
+  color: #000;
 
   margin-bottom: 2px;
 

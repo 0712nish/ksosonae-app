@@ -437,7 +437,7 @@ function moveNext(e) {
 .save-info {
   text-align: right;
   font-size: 11px;
-  color: #777;
+  color: #000;
   margin-bottom: 2px;
 }
 
