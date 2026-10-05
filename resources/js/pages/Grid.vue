@@ -125,6 +125,7 @@
                       @change="markDirty(row)"
                       @blur="saveRow(row)"
                     >
+                      <option value=""></option>
                       <option v-for="u in unitOptions1" :key="u">{{ u }}</option>
                     </select>
                     
@@ -156,6 +157,7 @@
                       @change="markDirty(row)"
                       @blur="saveRow(row)"
                     >
+                      <option value=""></option>
                       <option v-for="u in unitOptions2" :key="u">{{ u }}</option>
                     </select>
                   </div>
@@ -199,6 +201,7 @@
                       @change="markDirty(row)"
                       @blur="saveRow(row)"
                     >
+                      <option value=""></option>
                       <option v-for="u in unitOptions3" :key="u">{{ u }}</option>
                     </select>
                   </div>
