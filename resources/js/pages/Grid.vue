@@ -52,7 +52,7 @@
 
           <draggable
             v-model="rows"
-            item-key="autono"
+            item-key="_key"
             tag="tbody"
             handle=".no-cell"
             @end="handleDragEnd"
@@ -304,19 +304,33 @@ async function confirmDelete(index) {
     return
   }
 
-  //const deletedNo = rows.value[index].no
   const autono = rows.value[index].autono
 
+  // 画面から行を削除
   rows.value.splice(index, 1)
 
-  //await deleteRowDB(deletedNo)
-  await deleteRowDB(autono)
+  // DBに登録済みの行だけ削除
+  if (autono) {
+    await deleteRowDB(autono)
+  }
 
+  // 行が0件になった場合は入力用の空行を作る
+  if (rows.value.length === 0) {
+    rows.value.push(createRow(1))
+  }
+
+  // 行番号を振り直す
   renumberRows()
 
+  // 残った行の番号をDBに反映
   for (const row of rows.value) {
     await saveRow(row, true)
   }
+
+  // 画面更新後、先頭行の区別欄にフォーカス
+  await nextTick()
+
+  focusCell(0, 0)
 }
 
 function renumberRows() {
@@ -338,6 +352,7 @@ async function deleteRowDB(autono) {
 }
 
 /* ===== 行生成 ===== */
+let rowKeyCounter = 0
 function createRow(no) {
   const quantities = {}
 
@@ -353,6 +368,7 @@ function createRow(no) {
   })
 
   return {
+    _key: ++rowKeyCounter,
     autono: null,
     no,
     kubetsu: "",
@@ -544,6 +560,7 @@ function handleKey(e, r, c) {
 function setRowsFromDB(data) {
   rows.value = data.map(d => {
     return {
+      _key: ++rowKeyCounter,
       autono: d.autono,
       no: d.no,
       kubetsu: d.oname,
@@ -577,7 +594,14 @@ function setRowsFromDB(data) {
       _dirty: false
     }
   })
+
+  // DBにデータがなければ入力用の空行を1行作る
+  if (rows.value.length === 0) {
+    rows.value = [createRow(1)]
+  }
+
 }
+
 function trimZero(val) {
   if (val === null || val === undefined || val === "") {
     return ""

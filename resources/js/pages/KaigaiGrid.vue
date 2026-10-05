@@ -178,7 +178,7 @@
 
           <draggable
             v-model="rows"
-            item-key="autono"
+            item-key="_key"
             tag="tbody"
             handle=".no-cell"
             @end="handleDragEnd"
@@ -890,9 +890,15 @@ function openContextMenu(
    行生成
 ========================= */
 
+// 画面表示用の行キー
+let rowKeyCounter = 0
+
 function createRow(no) {
 
   return {
+
+    // 画面表示用の固定キー
+    _key: ++rowKeyCounter,
 
     autono: null,
 
@@ -976,67 +982,48 @@ async function insertRow(
 
 }
 
-
 /* =========================
    行削除
 ========================= */
 
-async function confirmDelete(
-  index
-) {
+async function confirmDelete(index) {
 
-  menu.value.visible =
-    false
+  // 行操作メニューを閉じる
+  menu.value.visible = false
 
-  if (
-    !confirm(
-      `${index + 1}行目を削除しますか？`
-    )
-  ) {
-
+  // 削除確認
+  if (!confirm(`${index + 1}行目を削除しますか？`)) {
     return
-
   }
 
+  // 削除対象のDB登録番号
+  const autono = rows.value[index].autono
 
-  const autono =
-    rows.value[index].autono
+  // 画面から行を削除
+  rows.value.splice(index, 1)
 
-
-  rows.value.splice(
-    index,
-    1
-  )
-
-
+  // DBに登録済みの行だけ削除
   if (autono) {
-
-    await deleteRowDB(
-      autono
-    )
-
+    await deleteRowDB(autono)
   }
 
+  // 全行削除されても、新規入力用の空行を1行残す
+  if (rows.value.length === 0) {
+    rows.value.push(createRow(1))
+  }
 
+  // Noを振り直す
   renumberRows()
 
-
-  /*
-   * 行番号変更をDBへ反映
-   */
-  for (
-    const row of rows.value
-  ) {
-
-    await saveRow(
-      row,
-      true
-    )
-
+  // 行番号の変更をDBへ反映
+  for (const row of rows.value) {
+    await saveRow(row, true)
   }
 
+  // 先頭行の区別欄にフォーカス
+  await nextTick()
+  focusCell(0, 0)
 }
-
 
 async function deleteRowDB(
   autono
@@ -1050,7 +1037,6 @@ async function deleteRowDB(
   )
 
 }
-
 
 /* =========================
    セル参照
@@ -1476,6 +1462,8 @@ function setRowsFromDB(
   rows.value =
     data.map(
       d => ({
+
+        _key: ++rowKeyCounter,
 
         autono:
           d.autono,
