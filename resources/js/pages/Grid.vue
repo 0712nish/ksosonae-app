@@ -110,7 +110,10 @@
                       }"
                       v-model="row.quantities[q.date].ml_value"
                       :disabled="!isEditable(q.date)"
-                      :class="{ requiredCell: isRequired(row, 'ml_value') && isEditable(q.date) }"
+                      :class="{
+                        requiredCell: isRequired(row, 'ml_value') && isEditable(q.date),
+                        mlCell: isRequired(row, 'ml_value') && isEditable(q.date)
+                      }"
                       @keydown="handleKey($event, r, getColIndex(qi, 0))"
                       :ref="el => setRef(el, r, getColIndex(qi, 0))"
                       @blur="saveRow(row)"
@@ -119,7 +122,10 @@
                       v-model="row.quantities[q.date].ml_unit"
                       :disabled="!isEditable(q.date)"
                       class="unit"
-                      :class="{ requiredCell: isRequired(row, 'ml_unit') && isEditable(q.date) }"
+                      :class="{
+                        requiredCell: isRequired(row, 'ml_unit') && isEditable(q.date),
+                        mlCell: isRequired(row, 'ml_unit') && isEditable(q.date)
+                      }"
                       @keydown="handleKey($event, r, getColIndex(qi, 0, true))"
                       :ref="el => setRef(el, r, getColIndex(qi, 0, true))"
                       @change="markDirty(row)"
@@ -186,7 +192,15 @@
                       }"                      
                       v-model="row.quantities[q.date].hako_value"
                       :disabled="!isEditable(q.date)"
-                      :class="{ requiredCell: isRequired(row, 'hako_value') && isEditable(q.date) }"
+                      :class="{
+                        requiredCell: isRequired(row, 'hako_value') && isEditable(q.date),
+                        hakoCell:
+                          isEditable(q.date) &&
+                          (
+                            isRequired(row, 'hako_value') ||
+                            ['野菜', '果物'].includes(row.kubetsu)
+                          )
+                      }"
                       @keydown="handleKey($event, r, getColIndex(qi, 2))"
                       :ref="el => setRef(el, r, getColIndex(qi, 2))"
                       @blur="saveRow(row)"
@@ -195,7 +209,15 @@
                       v-model="row.quantities[q.date].hako_unit"
                       :disabled="!isEditable(q.date)"
                       class="unit"
-                      :class="{ requiredCell: isRequired(row, 'hako_unit') && isEditable(q.date) }"
+                      :class="{
+                        requiredCell: isRequired(row, 'hako_unit') && isEditable(q.date),
+                        hakoCell:
+                          isEditable(q.date) &&
+                          (
+                            isRequired(row, 'hako_unit') ||
+                            ['野菜', '果物'].includes(row.kubetsu)
+                          )
+                      }"
                       @keydown="handleKey($event, r, getColIndex(qi, 2, true))"
                       :ref="el => setRef(el, r, getColIndex(qi, 2, true))"
                       @change="markDirty(row)"
@@ -1114,10 +1136,23 @@ select {
   font-size: 18px;
 }
 
-/* 必須 */
+/* 必須：基本色（本） */
 input.requiredCell,
 select.requiredCell {
-  background-color: #fcfdbf !important;
+  /*background-color: #fcfdbf !important;*/
+  background-color: #fbff04 !important;
+}
+
+/* ml：薄いピンク */
+input.requiredCell.mlCell,
+select.requiredCell.mlCell {
+  background-color: #ffd5d5 !important;
+}
+
+/* hako：水色 */
+input.hakoCell,
+select.hakoCell {
+  background-color: #9ce8ff !important;
 }
 
 /* select */
