@@ -19,7 +19,7 @@
         <input
           type="text"
           v-model="tantoshaname"
-          placeholder="担当者氏名を入力"
+          placeholder="入力される方の氏名を入力"
         />
       </div>
 
