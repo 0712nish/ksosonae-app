@@ -340,9 +340,24 @@ async function confirmDelete(index) {
   }
 
   // 行が0件になった場合は入力用の空行を作る
+  //if (rows.value.length === 0) {
+  //  rows.value.push(createRow(1))
+  //} 2026.10.7変更↓
+  // 最終行が空行でなければ、入力用の空行を追加
+  const lastRow = rows.value[rows.value.length - 1]
+
+  if (
+    lastRow &&
+    (lastRow.kubetsu || lastRow.hinmoku)
+  ) {
+    rows.value.push(createRow(rows.value.length + 1))
+  }
+
+  // 0件の場合
   if (rows.value.length === 0) {
     rows.value.push(createRow(1))
   }
+  //2026.10.7変更↑
 
   // 行番号を振り直す
   renumberRows()
@@ -621,9 +636,11 @@ function setRowsFromDB(data) {
   })
 
   // DBにデータがなければ入力用の空行を1行作る
-  if (rows.value.length === 0) {
-    rows.value = [createRow(1)]
-  }
+  //if (rows.value.length === 0) {
+  //  rows.value = [createRow(1)]
+  //}
+    // ★ 常に最後に入力用の空行を1行残す
+    rows.value.push(createRow(rows.value.length + 1))
 
 }
 
@@ -889,6 +906,16 @@ function printTable() {
 
 async function handleDragEnd() {
 
+  // 最後が空行でなければ空行を追加
+  const lastRow = rows.value[rows.value.length - 1]
+
+  if (
+    lastRow &&
+    (lastRow.kubetsu || lastRow.hinmoku)
+  ) {
+    rows.value.push(createRow(rows.value.length + 1))
+  }
+
   renumberRows()
 
   for (const row of rows.value) {
@@ -1004,6 +1031,16 @@ function limitDecimal(e, row, date, field) {
 
 function markDirty(row) {
   row._dirty = true
+
+  // 最終行に入力されたら、次の空行を自動追加
+  const lastRow = rows.value[rows.value.length - 1]
+
+  if (
+    row === lastRow &&
+    (row.kubetsu || row.hinmoku)
+  ) {
+    rows.value.push(createRow(rows.value.length + 1))
+  }
 }
 
 </script>
