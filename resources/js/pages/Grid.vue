@@ -14,7 +14,7 @@
 
       <div class="save-info">
         最終更新 {{ lastSavedAt }}<br>
-        担当者：{{ lastSavedTantoshaname }} 
+        入力者：{{ lastSavedTantoshaname }} 
       </div>
       <div class="report-subtitle rice-title">
         ◆野菜、果物、特産品
@@ -43,10 +43,23 @@
 
             <tr>
               <template v-for="q in quantityColumns" :key="q.date">
-                <th>{{ q.date }} 締切<br>午前中</th>
+                <th class="qty-header">
+                  <div class="qty-header-date">
+                    {{ q.date }} 締切
+                  </div>
+
+                  <div class="qty-header-detail">
+                    <span class="header-group header-ml">1個の内容量</span>
+                    <span class="header-x">✕</span>
+
+                    <span class="header-group header-hon">1箱の数量</span>
+                    <span class="header-x">✕</span>
+
+                    <span class="header-group header-hako">箱数</span>
+                  </div>
+                </th>
               </template>
             </tr>
-
 
           </thead>
 
@@ -134,7 +147,7 @@
                       <option value=""></option>
                       <option v-for="u in unitOptions1" :key="u">{{ u }}</option>
                     </select>
-                    
+                    <span v-if="row.kubetsu === '特産'":class="{ disabledText: !isEditable(q.date) }">✕</span>
                     <!-- 本 -->
                     <input type="text"
                       inputmode="decimal"
@@ -166,19 +179,7 @@
                       <option value=""></option>
                       <option v-for="u in unitOptions2" :key="u">{{ u }}</option>
                     </select>
-                  </div>
-
-                  <!-- 下段 -->
-                  <div class="row-bottom">
-                    <!-- 変更なし -->
-                    <button
-                      v-if="q.date !== '20日'"
-                      class="copy-btn"
-                      :disabled="!isEditable(q.date)"
-                      @click="copyPreviousDay(row, q.date)"
-                    >
-                      変更なし
-                    </button>
+                    <span v-if="['野菜', '果物', '特産'].includes(row.kubetsu)":class="{ disabledText: !isEditable(q.date) }">✕</span>
                     <!-- 箱 -->
                     <input type="text"
                       inputmode="decimal"
@@ -226,6 +227,35 @@
                       <option value=""></option>
                       <option v-for="u in unitOptions3" :key="u">{{ u }}</option>
                     </select>
+                  </div>
+
+                  <!-- 下段 -->
+                  <div class="row-bottom">
+                    <!-- 変更なし -->
+                    <button
+                      v-if="q.date !== '20日'"
+                      class="copy-btn"
+                      :disabled="!isEditable(q.date)"
+                      @click="copyPreviousDay(row, q.date)"
+                    >
+                      変更なし
+                    </button>
+                    <!-- 総数量 -->
+                    <span class="total-quantity":class="{ disabledText: !isEditable(q.date) }">
+                      総数量：
+                      <span class="total-value">
+                        {{
+                          row.quantities[q.date].hon_value &&
+                          row.quantities[q.date].hako_value
+                            ? Number(row.quantities[q.date].hon_value) *
+                              Number(row.quantities[q.date].hako_value)
+                            : ''
+                        }}
+                      </span>
+                      <span v-if="row.quantities[q.date].hon_unit">
+                        {{ row.quantities[q.date].hon_unit }}
+                      </span>
+                    </span>
                   </div>
                 </td>
               </template>
@@ -291,7 +321,7 @@ const quantityColumns = [
 ]
 
 const kubetsuOptions = ["野菜", "果物", "特産", "お米"]
-const unitOptions1 = ["g", "kg", "ml", "L", "本","個", "袋", "箱", "g入", "kg入", "ml入", "L入", "本入","個入", "袋入", "箱入"]
+const unitOptions1 = ["g", "kg", "ml", "L", "本","個", "袋", "箱"]
 const unitOptions2 = ["g", "kg", "ml", "L", "本","個", "袋", "箱"]
 const unitOptions3 = ["箱", "袋","個"]
 
@@ -524,6 +554,38 @@ function moveVertical(r, c, dir) {
 
 /* ===== キー操作 ===== */
 function handleKey(e, r, c) {
+
+  // 次のセルへ移動する前に、現在の数量の箱を自動補完
+  if (
+    ["Enter", "Tab", "ArrowRight", "ArrowDown"].includes(e.key)
+  ) {
+    const row = rows.value[r]
+
+    if (row && ["野菜", "果物", "特産"].includes(row.kubetsu)) {
+
+      const idx = c - 2
+
+      if (idx >= 0) {
+        const qi = Math.floor(idx / 6)
+        const date = quantityColumns[qi]?.date
+
+        if (date) {
+          const quantity = row.quantities[date]
+
+          if (
+            quantity.hako_value === "" ||
+            quantity.hako_value === null ||
+            quantity.hako_value === undefined
+          ) {
+            quantity.hako_value = "1"
+            quantity.hako_unit = "箱"
+            row._dirty = true
+          }
+        }
+      }
+    }
+  }
+
   const tag = e.target.tagName?.toLowerCase()
   const isSelect = tag === "select"
 
@@ -1423,6 +1485,79 @@ select:disabled {
   font-size: 11px;
   color: #000;
   margin-bottom: 2px;
+}
+
+.total-quantity {
+  font-size: 18px;
+  white-space: nowrap;
+}
+
+.total-value {
+  font-weight: bold;
+  margin-left: 2px;
+}
+
+.disabledText {
+  color: #999;
+}
+
+.qty-header {
+  padding: 0;
+}
+
+.qty-header-date {
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qty-header-detail {
+  display: grid;
+
+  /*
+   * 明細行の
+   * input 60px
+   * unit 55px
+   * ✕
+   * と同じ位置にする
+   */
+  grid-template-columns:
+    60px 55px 18px
+    60px 55px 18px
+    60px 55px;
+
+  align-items: center;
+  justify-content: center;
+
+  white-space: nowrap;
+
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.header-group {
+  text-align: center;
+}
+
+/* 1個の内容量 */
+.header-ml {
+  grid-column: 1 / 3;
+}
+
+/* 1箱の数量 */
+.header-hon {
+  grid-column: 4 / 6;
+}
+
+/* 箱数 */
+.header-hako {
+  grid-column: 7 / 9;
+}
+
+/* ✕ */
+.header-x {
+  text-align: center;
 }
 
 </style>

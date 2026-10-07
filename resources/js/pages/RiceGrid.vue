@@ -19,7 +19,7 @@
 
     <div class="save-info">
       最終更新 {{ lastSavedAt }}<br>
-      担当者：{{ lastSavedTantoshaname }}
+      入力者：{{ lastSavedTantoshaname }}
     </div>
 
     <div class="report-subtitle rice-title">

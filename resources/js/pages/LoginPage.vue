@@ -13,9 +13,9 @@
         </select>
       </div>
       
-      <!-- 担当者氏名 -->
+      <!-- 入力者氏名 -->
       <div class="form-group">
-        <label>担当者氏名</label>
+        <label>入力者氏名</label>
         <input
           type="text"
           v-model="tantoshaname"
