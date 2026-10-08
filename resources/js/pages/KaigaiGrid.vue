@@ -1008,9 +1008,52 @@ async function confirmDelete(index) {
   }
 
   // 全行削除されても、新規入力用の空行を1行残す
-  if (rows.value.length === 0) {
-    rows.value.push(createRow(1))
+  //if (rows.value.length === 0) {
+  //  rows.value.push(createRow(1))
+  //}
+  /*
+  * 最終行が空行でなければ
+  * 新規入力用の空行を1行追加
+  */
+  const lastRow =
+    rows.value[
+      rows.value.length - 1
+    ]
+
+  if (
+    lastRow &&
+    (
+      lastRow.kubetsu ||
+      lastRow.hinmoku ||
+      lastRow.chugokugo ||
+      lastRow.chiikimei ||
+      lastRow.jissiyear ||
+      lastRow.seisansha ||
+      lastRow.shinjakb ||
+      lastRow.suryo
+    )
+  ) {
+
+    rows.value.push(
+      createRow(
+        rows.value.length + 1
+      )
+    )
   }
+
+  /*
+  * 0行になった場合
+  */
+  if (
+    rows.value.length === 0
+  ) {
+
+    rows.value.push(
+      createRow(1)
+    )
+
+  }
+
 
   // Noを振り直す
   renumberRows()
@@ -1548,15 +1591,21 @@ function setRowsFromDB(
    * DBにデータがなければ
    * 新規1行
    */
-  if (
-    rows.value.length === 0
-  ) {
+  //if (rows.value.length === 0) {
+  //  rows.value = [
+  //    createRow(1)
+  //  ]
+  //}
 
-    rows.value = [
-      createRow(1)
-    ]
-
-  }
+  /*
+   * 常に最後に
+   * 新規入力用の空行を1行残す
+   */
+  rows.value.push(
+    createRow(
+      rows.value.length + 1
+    )
+  )
 
 }
 
@@ -1739,9 +1788,48 @@ async function saveRow(
 
 async function handleDragEnd() {
 
+  /*
+   * 最後が空行でなければ
+   * 空行を追加
+   */
+  const lastRow =
+    rows.value[
+      rows.value.length - 1
+    ]
+
+
+  if (
+    lastRow &&
+    (
+      lastRow.kubetsu ||
+      lastRow.hinmoku ||
+      lastRow.chugokugo ||
+      lastRow.chiikimei ||
+      lastRow.jissiyear ||
+      lastRow.seisansha ||
+      lastRow.shinjakb ||
+      lastRow.suryo
+    )
+  ) {
+
+    rows.value.push(
+      createRow(
+        rows.value.length + 1
+      )
+    )
+
+  }
+
+
+  /*
+   * Noを振り直す
+   */
   renumberRows()
 
 
+  /*
+   * DBへ保存
+   */
   for (
     const row of rows.value
   ) {
@@ -2004,6 +2092,39 @@ function markDirty(row) {
 
   row._dirty =
     true
+
+
+  /*
+   * 最終行に入力されたら
+   * 次の空行を自動追加
+   */
+  const lastRow =
+    rows.value[
+      rows.value.length - 1
+    ]
+
+
+  if (
+    row === lastRow &&
+    (
+      row.kubetsu ||
+      row.hinmoku ||
+      row.chugokugo ||
+      row.chiikimei ||
+      row.jissiyear ||
+      row.seisansha ||
+      row.shinjakb ||
+      row.suryo
+    )
+  ) {
+
+    rows.value.push(
+      createRow(
+        rows.value.length + 1
+      )
+    )
+
+  }
 
 }
 

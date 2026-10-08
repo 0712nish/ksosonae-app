@@ -92,7 +92,7 @@ const login = async () => {
 
   // 担当者氏名チェック
   if (!tantoshaname.value.trim()) {
-    error.value = "担当者氏名を入力してください"
+    error.value = "入力者氏名を入力してください"
     return
   }
 

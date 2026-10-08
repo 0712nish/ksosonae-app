@@ -49,7 +49,7 @@
                   </div>
 
                   <div class="qty-header-detail">
-                    <span class="header-group header-ml">1個の内容量</span>
+                    <span class="header-group header-ml">1単位の内容量</span>
                     <span class="header-x">✕</span>
 
                     <span class="header-group header-hon">1箱の数量</span>
