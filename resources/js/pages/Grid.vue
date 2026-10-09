@@ -19,7 +19,7 @@
       <div class="report-subtitle rice-title">
         ◆野菜、果物、特産品
       </div>
-      <div class="table-wrap">
+      <div class="table-wrap" ref="tableWrap">
         <table>
           <colgroup>
             <col class="col-no">
@@ -38,7 +38,7 @@
               <th rowspan="2" class="no-header">No</th>
               <th rowspan="2" class="kubetsu-header">区別</th>
               <th rowspan="2" class="hinmoku-header">品目</th>
-              <th :colspan="quantityColumns.length">数量</th>
+              <th :colspan="quantityColumns.length" class="qty-header">数量</th>
             </tr>
 
             <tr>
@@ -282,14 +282,28 @@
         </div>
 
       </div>
+
+      <!-- 画面下部に固定する横スクロールバー -->
+      <div
+        class="bottom-scroll"
+        ref="bottomScroll"
+        @scroll="syncFromBottom"
+      >
+        <div
+          class="bottom-scroll-inner"
+          :style="{ width: tableWidth + 'px' }"
+        ></div>
+      </div>
+
     </div> 
   </div>
 </template>
 
 <script setup>
 import axios from "axios"
-import { onMounted } from "vue"
-import { ref, nextTick } from "vue"
+//import { onMounted } from "vue"
+//import { ref, nextTick } from "vue"
+import { onMounted, onBeforeUnmount, ref, nextTick } from "vue"
 import { useRoute, useRouter } from "vue-router"
 /*import { useRoute } from "vue-router"*/
 import draggable from "vuedraggable"
@@ -449,6 +463,59 @@ function createRow(no) {
 }
 
 const rows = ref([createRow(1)])
+
+/* ===== 下部固定スクロールバー ===== */
+const tableWrap = ref(null)
+const bottomScroll = ref(null)
+const tableWidth = ref(0)
+
+let resizeObserver = null
+
+// テーブルの実際の横幅を取得
+function updateTableWidth() {
+  const table = tableWrap.value?.querySelector('table')
+
+  if (!table) return
+
+  tableWidth.value = table.scrollWidth
+}
+
+// 下部バー → テーブル
+function syncFromBottom() {
+  if (!tableWrap.value || !bottomScroll.value) return
+
+  tableWrap.value.scrollLeft = bottomScroll.value.scrollLeft
+}
+
+// テーブル → 下部バー
+function syncFromTable() {
+  if (!tableWrap.value || !bottomScroll.value) return
+
+  bottomScroll.value.scrollLeft = tableWrap.value.scrollLeft
+}
+
+// イベント登録
+function setupBottomScroll() {
+  updateTableWidth()
+
+  tableWrap.value?.addEventListener('scroll', syncFromTable)
+
+  if (window.ResizeObserver) {
+    resizeObserver = new ResizeObserver(() => {
+      updateTableWidth()
+      syncFromTable()
+    })
+
+    if (tableWrap.value) {
+      resizeObserver.observe(tableWrap.value)
+
+      const table = tableWrap.value.querySelector('table')
+      if (table) resizeObserver.observe(table)
+    }
+  }
+}
+/*追加2026.10.9*/
+
 
 /* ===== セル参照 ===== */
 const cellRefs = ref([])
@@ -1058,6 +1125,10 @@ onMounted(async () => {
   await nextTick()
   focusCell(0, 0)
 
+  // 下部固定スクロールバーを初期化
+  await nextTick()
+  setupBottomScroll()
+
 })
 
 
@@ -1105,53 +1176,88 @@ function markDirty(row) {
   }
 }
 
+onBeforeUnmount(() => {
+  tableWrap.value?.removeEventListener('scroll', syncFromTable)
+  resizeObserver?.disconnect()
+})
+
 </script>
 
 <style scoped>
+
 .grid {
   padding: 20px;
   display: flex;
   justify-content: center;
-
   width: 100%;
   box-sizing: border-box;
-
   min-height: 100vh;
   min-height: 100dvh;
-
   overflow: hidden;
 }
 
-.table-wrap {
-  overflow-x: auto;
-  overflow-y: auto;
 
+.table-wrap {
+  overflow: auto;
   width: 100%;
   max-width: 100%;
-
-  max-height: calc(100vh - 80px);
-  max-height: calc(100dvh - 80px);
-
+  max-height: calc(100dvh - 100px);
   min-width: 0;
   min-height: 0;
-
   -webkit-overflow-scrolling: touch;
-
-  /* スマホで上下左右にスクロール */
   touch-action: pan-x pan-y;
+
+  /* 縦スクロールバーを表示 */
+  scrollbar-width: auto;
+}
+
+/* 横スクロールバーだけ非表示にする */
+.table-wrap::-webkit-scrollbar:horizontal {
+  height: 0;
+}
+
+/* 縦スクロールバーは表示する */
+.table-wrap::-webkit-scrollbar:vertical {
+  width: 12px;
+}
+
+.table-wrap::-webkit-scrollbar-thumb {
+  background: #aaa;
+  border-radius: 6px;
+}
+
+.table-wrap::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* 画面下部に固定する横スクロールバー */
+.bottom-scroll {
+  position: fixed;
+  left: 20px;
+  right: 20px;
+  bottom: 0;
+  height: 18px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  background: #f5f5f5;
+  z-index: 2000;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
+}
+
+.bottom-scroll-inner {
+  height: 1px;
 }
 
 table {
   border-collapse: separate;
   border-spacing: 0;
-
   table-layout: fixed;
   width: max-content;
   display: inline-table;
 }
 
-/* ===== 共通 ===== */
-
+/* 共通 */
 th,
 td {
   border: 1px solid #ccc;
@@ -1161,26 +1267,74 @@ td {
   padding: 0;
 }
 
-/* ===== sticky header ===== */
-
+/* ヘッダーの縦固定 */
 thead th {
   position: sticky;
-  background: #eee;
+  background-color: #eee;
 }
 
 thead tr:first-child th {
   top: 0;
-  z-index: 20;
   height: 40px;
 }
 
 thead tr:nth-child(2) th {
   top: 40px;
-  z-index: 19;
 }
 
-/* ===== colgroup固定 ===== */
+/* 数量ヘッダー */
+thead th.qty-header {
+  z-index: 5;
+}
 
+/* 左側3列の横固定 */
+.no-header,
+.no-cell {
+  position: sticky;
+  left: 0;
+  width: 40px;
+  min-width: 40px;
+  max-width: 40px;
+  box-sizing: border-box;
+}
+
+.kubetsu-header,
+.kubetsu-cell {
+  position: sticky;
+  left: 40px;
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
+  box-sizing: border-box;
+}
+
+.hinmoku-header,
+.hinmoku-cell {
+  position: sticky;
+  left: 120px;
+  width: 240px;
+  min-width: 240px;
+  max-width: 240px;
+  box-sizing: border-box;
+}
+
+/* 固定列のヘッダーを最前面にする */
+thead th.no-header,
+thead th.kubetsu-header,
+thead th.hinmoku-header {
+  z-index: 1000;
+  background-color: #eee;
+}
+
+/* 固定列の明細を前面にする */
+tbody .no-cell,
+tbody .kubetsu-cell,
+tbody .hinmoku-cell {
+  z-index: 10;
+  background-color: #fff;
+}
+
+/* 列幅 */
 .col-no {
   width: 40px;
 }
@@ -1197,33 +1351,8 @@ thead tr:nth-child(2) th {
   width: 235px;
 }
 
-/* ===== header固定 ===== */
-
-.no-header,
-.no-cell {
-  width: 40px;
-  min-width: 40px;
-  max-width: 40px;
-}
-
-.kubetsu-header,
-.kubetsu-cell {
-  width: 80px;
-  min-width: 80px;
-  max-width: 80px;
-}
-
-.hinmoku-header,
-.hinmoku-cell {
-  width: 240px;
-  min-width: 240px;
-  max-width: 240px;
-}
-
+/* 数量セル */
 .qty-cell {
-  /*width: 240px;
-  min-width: 240px;
-  max-width: 240px;*/
   padding: 0;
 }
 
