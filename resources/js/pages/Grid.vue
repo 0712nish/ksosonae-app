@@ -204,6 +204,7 @@
                       }"
                       @keydown="handleKey($event, r, getColIndex(qi, 2))"
                       :ref="el => setRef(el, r, getColIndex(qi, 2))"
+                      @focus="$event.target.select()"
                       @blur="saveRow(row)"
                     />
                     <select
@@ -335,9 +336,9 @@ const quantityColumns = [
 ]
 
 const kubetsuOptions = ["野菜", "果物", "特産", "お米"]
-const unitOptions1 = ["g", "kg", "ml", "L", "本","個", "袋", "箱"]
-const unitOptions2 = ["g", "kg", "ml", "L", "本","個", "袋", "箱"]
-const unitOptions3 = ["箱", "袋","個"]
+const unitOptions1 = ["g", "ml", "kg", "L", "本","個", "袋", "箱"]
+const unitOptions2 = ["kg", "袋", "本", "g", "ml", "L","個", "箱"]
+const unitOptions3 = ["箱", "袋", "個"]
 
 const menu = ref({
   visible: false,
@@ -642,7 +643,8 @@ function handleKey(e, r, c) {
           if (
             quantity.hako_value === "" ||
             quantity.hako_value === null ||
-            quantity.hako_value === undefined
+            quantity.hako_value === undefined ||
+            Number(quantity.hako_value) < 1
           ) {
             quantity.hako_value = "1"
             quantity.hako_unit = "箱"
