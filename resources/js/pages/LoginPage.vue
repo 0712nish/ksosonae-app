@@ -6,7 +6,7 @@
       <div class="form-group">
         <label>所属</label>
         <select v-model="pref">
-          <option value="">クリックし一覧から所属を選択してください</option>
+          <option value="">クリックし一覧から所属を選択</option>
           <option v-for="p in prefectures" :key="p" :value="p">
             {{ p }}
           </option>
