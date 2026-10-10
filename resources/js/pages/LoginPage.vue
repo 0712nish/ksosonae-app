@@ -6,7 +6,7 @@
       <div class="form-group">
         <label>所属</label>
         <select v-model="pref">
-          <option value="">選択してください</option>
+          <option value="">クリックし一覧から所属を選択してください</option>
           <option v-for="p in prefectures" :key="p" :value="p">
             {{ p }}
           </option>
@@ -19,7 +19,7 @@
         <input
           type="text"
           v-model="tantoshaname"
-          placeholder="入力される方の氏名を入力"
+          placeholder="入力者の氏名を入力"
         />
       </div>
 
@@ -92,7 +92,7 @@ const login = async () => {
 
   // 担当者氏名チェック
   if (!tantoshaname.value.trim()) {
-    error.value = "入力者氏名を入力してください"
+    error.value = "入力者の氏名を入力してください"
     return
   }
 
