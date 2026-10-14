@@ -44,6 +44,10 @@ class KaigaiController extends Controller
             'seisansha' => $row['seisansha'] ?? '',
             'shinjakb' => $row['shinjakb'] ?? '',
             'suryo' => $row['suryo'] ?? '',
+            'tanikosu' => ($row['tanikosu'] ?? '') === '' ? null : $row['tanikosu'],
+            'tstani' => ($row['tstani'] ?? '') === '' ? null : $row['tstani'],
+            'gokeisu' => ($row['gokeisu'] ?? '') === '' ? null : $row['gokeisu'],
+            'gstani' => ($row['gstani'] ?? '') === '' ? null : $row['gstani'],
 
             'tantoshaname' => $row['tantoshaname'] ?? '',
 

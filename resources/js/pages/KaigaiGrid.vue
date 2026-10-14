@@ -69,7 +69,11 @@
             <col class="col-jissiyear">
             <col class="col-seisansha">
             <col class="col-shinjakb">
-            <col class="col-suryo">
+            <!--<col class="col-suryo">-->
+            <col class="col-tanikosu">
+            <col class="col-tstani">
+            <col class="col-gokeisu">
+            <col class="col-gstani">
 
           </colgroup>
 
@@ -147,7 +151,7 @@
               </th>
 
 
-              <th class="quantity-header">
+              <th colspan="4" class="quantity-header">
                 数量
               </th>
 
@@ -157,18 +161,16 @@
             <!-- 2段目 -->
             <tr>
 
-              <th class="suryo-header">
-
-                野菜(kg)、果物(kg×箱数)、特産(個数×箱数)<br>
-
-                <span>
-                  20日　締切
-                </span>
-
+              <th colspan="4" class="suryo-header">
+                <div class="suryo-title">25日 締切</div>
+                <div class="suryo-detail">
+                  <span>入力例）500ml x 6本</span>
+                </div>
+                <!--
                 <div class="correction-text">
                   変更後はすぐに訂正報告
                 </div>
-
+                -->
               </th>
 
             </tr>
@@ -552,7 +554,7 @@
                 <!-- =========================
                      数量
                 ========================= -->
-                <td
+                <td colspan="4" 
                   class="suryo-cell"
                   :class="{
                     marked: row.mark8 === 1
@@ -565,7 +567,7 @@
                     )
                   "
                 >
-
+<!--
                   <input
                     class="suryo-input"
                     v-model="row.suryo"
@@ -590,6 +592,68 @@
                     @input="markDirty(row)"
                     @blur="saveRow(row)"
                   >
+-->
+                  <div class="suryo-inputs">
+
+                    <!-- ① 数量：tanikosu -->
+                    <input
+                      class="tanikosu-input"
+                      type="text"
+                      inputmode="decimal"
+                      v-model="row.tanikosu"
+                      :disabled="!isGridEditable"
+                      @input="e => limitDecimal(e, row, 'tanikosu')"
+                      @keydown="handleKey($event, r, getColumnIndex('tanikosu'))"
+                      :ref="el => setRef(el, r, getColumnIndex('tanikosu'))"
+                      @blur="saveRow(row)"
+                    >
+
+                    <!-- ② 単位：tstani -->
+                    <select
+                      class="tstani-select"
+                      v-model="row.tstani"
+                      :disabled="!isGridEditable"
+                      @keydown="handleKey($event, r, getColumnIndex('tstani'))"
+                      :ref="el => setRef(el, r, getColumnIndex('tstani'))"
+                      @change="markDirty(row)"
+                      @blur="saveRow(row)"
+                    >
+                      <option value=""></option>
+                      <option v-for="u in unitOptions1" :key="u" :value="u">
+                        {{ u }}
+                      </option>
+                    </select>
+
+                    <!-- ③ 本数・個数：gokeisu -->
+                    <input
+                      class="gokeisu-input"
+                      type="text"
+                      inputmode="decimal"
+                      v-model="row.gokeisu"
+                      :disabled="!isGridEditable"
+                      @input="e => limitDecimal(e, row, 'gokeisu')"
+                      @keydown="handleKey($event, r, getColumnIndex('gokeisu'))"
+                      :ref="el => setRef(el, r, getColumnIndex('gokeisu'))"
+                      @blur="saveRow(row)"
+                    >
+
+                    <!-- ④ 単位：gstani -->
+                    <select
+                      class="gstani-select"
+                      v-model="row.gstani"
+                      :disabled="!isGridEditable"
+                      @keydown="handleKey($event, r, getColumnIndex('gstani'))"
+                      :ref="el => setRef(el, r, getColumnIndex('gstani'))"
+                      @change="markDirty(row)"
+                      @blur="saveRow(row)"
+                    >
+                      <option value=""></option>
+                      <option v-for="u in unitOptions2" :key="u" :value="u">
+                        {{ u }}
+                      </option>
+                    </select>
+
+                  </div>
 
                 </td>
 
@@ -749,7 +813,10 @@ const visibleColumns = isHongKong
       "jissiyear",
       "seisansha",
       "shinjakb",
-      "suryo"
+      "tanikosu",
+      "tstani",
+      "gokeisu",
+      "gstani"
     ]
   : [
       "kubetsu",
@@ -758,7 +825,10 @@ const visibleColumns = isHongKong
       "jissiyear",
       "seisansha",
       "shinjakb",
-      "suryo"
+      "tanikosu",
+      "tstani",
+      "gokeisu",
+      "gstani"
     ]
 
 
@@ -812,6 +882,13 @@ const kubetsuOptions = [
   "特産"
 ]
 
+const unitOptions1 = [
+  "g", "ml", "kg", "L", "本", "個", "袋", "箱", "オンス", "ポンド"
+]
+
+const unitOptions2 = [
+  "kg", "袋", "本", "g", "ml", "L", "個", "箱"
+]
 
 /* =========================
    右クリックメニュー
@@ -923,7 +1000,10 @@ function createRow(no) {
 
     shinjakb: "",
 
-    suryo: "",
+    tanikosu: "",
+    tstani: "",
+    gokeisu: "",
+    gstani: "",
 
     mark1: 0,
     mark2: 0,
@@ -1033,7 +1113,10 @@ async function confirmDelete(index) {
       lastRow.jissiyear ||
       lastRow.seisansha ||
       lastRow.shinjakb ||
-      lastRow.suryo
+      lastRow.tanikosu ||
+      lastRow.tstani ||
+      lastRow.gokeisu ||
+      lastRow.gstani
     )
   ) {
 
@@ -1541,8 +1624,10 @@ function setRowsFromDB(
         shinjakb:
           d.shinjakb ?? "",
 
-        suryo:
-          d.suryo ?? "",
+        tanikosu: d.tanikosu ?? "",
+        tstani: d.tstani ?? "",
+        gokeisu: d.gokeisu ?? "",
+        gstani: d.gstani ?? "",
 
         mark1:
           Number(
@@ -1702,8 +1787,10 @@ async function saveRow(
           shinjakb:
             row.shinjakb,
 
-          suryo:
-            row.suryo,
+          tanikosu: row.tanikosu,
+          tstani: row.tstani,
+          gokeisu: row.gokeisu,
+          gstani: row.gstani,
 
           mark1:
             row.mark1,
@@ -1811,7 +1898,10 @@ async function handleDragEnd() {
       lastRow.jissiyear ||
       lastRow.seisansha ||
       lastRow.shinjakb ||
-      lastRow.suryo
+      lastRow.tanikosu ||
+      lastRow.tstani ||
+      lastRow.gokeisu ||
+      lastRow.gstani
     )
   ) {
 
@@ -2129,7 +2219,10 @@ function markDirty(row) {
       row.jissiyear ||
       row.seisansha ||
       row.shinjakb ||
-      row.suryo
+      row.tanikosu ||
+      row.tstani ||
+      row.gokeisu ||
+      row.gstani
     )
   ) {
 
@@ -2193,6 +2286,35 @@ async function toggleMarker() {
     true
   )
 
+}
+
+function limitDecimal(e, row, field) {
+  let value = e.target.value
+
+  // 数字と小数点以外を除去
+  value = value.replace(/[^\d.]/g, "")
+
+  // 小数点は1個だけ許可
+  const parts = value.split(".")
+
+  if (parts.length > 2) {
+    value = parts[0] + "." + parts.slice(1).join("")
+  }
+
+  // 小数点以下は1桁まで
+  const normalizedParts = value.split(".")
+
+  if (normalizedParts.length > 1) {
+    value =
+      normalizedParts[0] +
+      "." +
+      normalizedParts[1].slice(0, 1)
+  }
+
+  e.target.value = value
+  row[field] = value
+
+  markDirty(row)
 }
 
 </script>
@@ -2466,13 +2588,13 @@ thead tr:nth-child(2) th {
 
 }
 
-
+/*
 .col-suryo {
 
   width: 235px;
 
 }
-
+*/
 
 /* =========================
    固定幅
@@ -2694,7 +2816,7 @@ select {
 
 }
 
-
+/*
 .suryo-input {
 
   width: 275px;
@@ -2704,7 +2826,47 @@ select {
   font-size: 16px;
 
 }
+*/
+.col-tanikosu { width: 65px; }
+.col-tstani   { width: 60px; }
+.col-gokeisu  { width: 65px; }
+.col-gstani   { width: 60px; }
 
+.suryo-cell {
+  width: 250px;
+  min-width: 250px;
+  max-width: 250px;
+}
+
+.suryo-inputs {
+  display: grid;
+  grid-template-columns: 65px 60px 65px 60px;
+  align-items: center;
+  width: 250px;
+}
+
+.tanikosu-input,
+.gokeisu-input {
+  width: 100%;
+  min-width: 0;
+  text-align: right;
+  font-size: 16px;
+}
+
+.tstani-select,
+.gstani-select {
+  width: 100%;
+  min-width: 0;
+  padding: 7px 2px;
+  font-size: 12px;
+}
+
+.suryo-detail {
+  display: grid;
+  grid-template-columns: 65px 60px 65px 60px;
+  text-align: center;
+  font-size: 12px;
+}
 
 /* =========================
    数量ヘッダー
