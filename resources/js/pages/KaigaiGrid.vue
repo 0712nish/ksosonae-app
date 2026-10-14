@@ -1969,23 +1969,17 @@ onMounted(
         resEdit.data
 
       // no = 8 の editdt から編集期限を取得
-      const editRow = editTable.find(
-        d => Number(d.no) === 8
-      )
+      const editRow = editTable.find(row => Number(row.no) === 8)
 
       if (!editRow || !editRow.editdt) {
-        alert("編集日付テーブルの no=8 の editdt を取得できません")
-        return
+        isGridEditable.value = false
+      } else {
+        const now = new Date()
+        const editLimit = new Date(editRow.editdt)
+
+        isGridEditable.value = !Number.isNaN(editLimit.getTime())
+          && now <= editLimit
       }
-
-      // 編集期限まで編集可能（当日を含む）
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-
-      const editLimit = new Date(editRow.editdt)
-      editLimit.setHours(0, 0, 0, 0)
-
-      isGridEditable.value = today <= editLimit
 
       /*
        * no = 0 の editdt から年度取得
