@@ -227,7 +227,7 @@
                   <select
                     class="kubetsu-select"
                     v-model="row.kubetsu"
-
+                    :disabled="!isGridEditable"
                     @keydown="
                       handleKey(
                         $event,
@@ -284,7 +284,7 @@
                   <input
                     class="hinmoku-input"
                     v-model="row.hinmoku"
-
+                    :disabled="!isGridEditable"
                     @keydown="
                       handleKey(
                         $event,
@@ -331,7 +331,7 @@
                   <input
                     class="chugokugo-input"
                     v-model="row.chugokugo"
-
+                    :disabled="!isGridEditable"
                     @keydown="
                       handleKey(
                         $event,
@@ -376,7 +376,7 @@
                   <input
                     class="area-input"
                     v-model="row.chiikimei"
-
+                    :disabled="!isGridEditable"
                     @keydown="
                       handleKey(
                         $event,
@@ -421,7 +421,7 @@
                   <input
                     class="jissiyear-input"
                     v-model="row.jissiyear"
-
+                    :disabled="!isGridEditable"
                     @keydown="
                       handleKey(
                         $event,
@@ -466,7 +466,7 @@
                   <input
                     class="seisansha-input"
                     v-model="row.seisansha"
-
+                    :disabled="!isGridEditable"
                     @keydown="
                       handleKey(
                         $event,
@@ -511,6 +511,7 @@
                   <select
                     class="shinjakb-select"
                     v-model="row.shinjakb"
+                    :disabled="!isGridEditable"
 
                     @keydown="
                       handleKey(
@@ -568,7 +569,7 @@
                   <input
                     class="suryo-input"
                     v-model="row.suryo"
-
+                    :disabled="!isGridEditable"
                     @keydown="
                       handleKey(
                         $event,
@@ -702,6 +703,8 @@ const tantoshaname =
 
 const year = ref(null)
 
+// 全列の編集可否
+const isGridEditable = ref(false)
 
 /* =========================
    香港判定
@@ -1965,6 +1968,24 @@ onMounted(
       const editTable =
         resEdit.data
 
+      // no = 8 の editdt から編集期限を取得
+      const editRow = editTable.find(
+        d => Number(d.no) === 8
+      )
+
+      if (!editRow || !editRow.editdt) {
+        alert("編集日付テーブルの no=8 の editdt を取得できません")
+        return
+      }
+
+      // 編集期限まで編集可能（当日を含む）
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+
+      const editLimit = new Date(editRow.editdt)
+      editLimit.setHours(0, 0, 0, 0)
+
+      isGridEditable.value = today <= editLimit
 
       /*
        * no = 0 の editdt から年度取得
