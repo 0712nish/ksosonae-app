@@ -164,7 +164,7 @@
               <th colspan="4" class="suryo-header">
                 <div class="suryo-title">25日 締切</div>
                 <div class="suryo-detail">
-                  <span>入力例）500ml x 6本</span>
+                  <span>例）500　ml　　×　　6　本</span>
                 </div>
                 <!--
                 <div class="correction-text">
@@ -624,7 +624,13 @@
                       </option>
                     </select>
 
-                    <!-- ③ 本数・個数：gokeisu -->
+                      <!-- ×：数量または本数が入力されている場合に表示 -->
+                    <span
+                      class="suryo-times"
+                      v-if="row.tanikosu !== '' && row.tanikosu != null
+                        && row.gokeisu !== '' && row.gokeisu != null"
+                    >×</span>
+                                      <!-- ③ 本数・個数：gokeisu -->
                     <input
                       class="gokeisu-input"
                       type="text"
@@ -887,7 +893,7 @@ const unitOptions1 = [
 ]
 
 const unitOptions2 = [
-  "kg", "袋", "本", "g", "ml", "L", "個", "箱"
+  "袋", "本", "瓶", "kg", "g", "ml", "L", "個", "箱"
 ]
 
 /* =========================
@@ -2840,17 +2846,37 @@ select {
 
 .suryo-inputs {
   display: grid;
-  grid-template-columns: 65px 60px 65px 60px;
+  grid-template-columns: 65px 60px 20px 65px 60px;
   align-items: center;
-  width: 250px;
+  width: 270px;
+  box-sizing: border-box;
+}
+
+.suryo-times {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.suryo-detail {
+  display: grid;
+  grid-template-columns: 65px 60px 20px 65px 60px;
+  width: 270px;
+  box-sizing: border-box;
+  text-align: center;
+  font-size: 12px;
 }
 
 .tanikosu-input,
 .gokeisu-input {
   width: 100%;
   min-width: 0;
-  text-align: right;
-  font-size: 16px;
+  text-align: center;
+  font-size: 18px;
 }
 
 .tstani-select,
@@ -2858,7 +2884,8 @@ select {
   width: 100%;
   min-width: 0;
   padding: 7px 2px;
-  font-size: 12px;
+  text-align: center;
+  font-size: 15px;
 }
 
 .suryo-detail {
@@ -3060,6 +3087,19 @@ select:focus {
 
   color: white;
 
+}
+
+
+.suryo-title {
+  font-size: 17px; /* 好みに応じて変更 */
+  font-weight: bold;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.suryo-header {
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 </style>
