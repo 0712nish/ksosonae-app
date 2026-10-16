@@ -75,6 +75,10 @@
               <td
                 class="no-cell"
                 @contextmenu.prevent="openContextMenu($event, r)"
+                @touchstart="startRowLongPress($event, r)"
+                @touchend="cancelRowLongPress"
+                @touchmove="cancelRowLongPress"
+                @touchcancel="cancelRowLongPress"
               >
                 {{ row.no }}
               </td>
@@ -359,6 +363,36 @@ function openContextMenu(e, rowIndex) {
   menu.value.x = e.clientX
   menu.value.y = e.clientY
   menu.value.rowIndex = rowIndex
+}
+
+let rowLongPressTimer = null
+
+function startRowLongPress(event, rowIndex) {
+  // 複数指操作では起動しない
+  if (event.touches.length !== 1) return
+
+  cancelRowLongPress()
+
+  rowLongPressTimer = setTimeout(() => {
+    const touch = event.touches[0]
+
+    openContextMenu(
+      {
+        clientX: touch.clientX,
+        clientY: touch.clientY
+      },
+      rowIndex
+    )
+
+    rowLongPressTimer = null
+  }, 600)
+}
+
+function cancelRowLongPress() {
+  if (rowLongPressTimer !== null) {
+    clearTimeout(rowLongPressTimer)
+    rowLongPressTimer = null
+  }
 }
 
 async function insertRow(index) {
@@ -1479,6 +1513,7 @@ select:focus {
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
   z-index: 9999;
   min-width: 120px;
+  touch-action: manipulation;
 }
 
 .menu-item {
