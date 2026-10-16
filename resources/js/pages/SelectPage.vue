@@ -12,6 +12,9 @@
           <span>野菜,果物,特産品</span>
         </label>
       </div>
+      <div v-if="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
       <button class="next-btn" @click="goNext">
         次へ
       </button>
@@ -27,12 +30,23 @@ import { ref } from "vue"
 import { useRouter } from "vue-router"
 
 const router = useRouter()
-const selected = ref("ALL")
-
+//const selected = ref("ALL")
+// 初期状態は未選択
+const selected = ref("")
+const errorMessage = ref("")
 const sname = localStorage.getItem("pref")
 const shozokuid = localStorage.getItem("shozokuid")
 
 const goNext = () => {
+
+  // 未選択ならエラーを表示して処理を中断
+  if (!selected.value) {
+    errorMessage.value = "お米、または野菜を選択してください。"
+    return
+  }
+
+  // エラーをクリア
+  errorMessage.value = ""
 
   if (selected.value === "1") {
 
@@ -159,6 +173,14 @@ const logout = () => {
 
 .logout-btn:hover {
   background: #f3f3f3;
+}
+
+.error-message {
+  color: #dc2626;
+  font-size: 14px;
+  text-align: center;
+  margin: -12px 0 15px;
+  font-weight: bold;
 }
 
 </style>

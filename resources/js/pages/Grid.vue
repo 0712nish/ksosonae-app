@@ -177,7 +177,13 @@
                       @blur="saveRow(row)"
                     >
                       <option value=""></option>
-                      <option v-for="u in unitOptions2" :key="u">{{ u }}</option>
+                      <option
+                        v-for="u in (row.kubetsu === '特産' ? unitOptions2x : unitOptions2)"
+                        :key="u"
+                        :value="u"
+                      >
+                        {{ u }}
+                      </option>
                     </select>
                     <span v-if="['野菜', '果物', '特産'].includes(row.kubetsu)":class="{ disabledText: !isEditable(q.date) }">✕</span>
                     <!-- 箱 -->
@@ -335,10 +341,11 @@ const quantityColumns = [
   { date: "28日" },
 ]
 
-const kubetsuOptions = ["野菜", "果物", "特産", "お米"]
-const unitOptions1 = ["g", "ml", "kg", "L", "本","個", "袋", "箱"]
-const unitOptions2 = ["kg", "袋", "本", "g", "ml", "L","個", "箱"]
-const unitOptions3 = ["箱", "袋", "個"]
+const kubetsuOptions = ["野菜", "果物", "特産"]
+const unitOptions1 = ["g", "ml", "L", "枚"]
+const unitOptions2 = ["kg", "g", "個"] //野菜・果物
+const unitOptions2x = ["袋", "本", "個"] //特産
+const unitOptions3 = ["箱"]
 
 const menu = ref({
   visible: false,
