@@ -6,6 +6,12 @@ use App\Http\Controllers\ShozokuController;
 use App\Http\Controllers\EditTableController;
 use App\Http\Controllers\KaigaiController;
 use App\Http\Controllers\LoginDataController;
+use App\Http\Controllers\CommonPasswordController;
+
+Route::post(
+    '/verify-common-password',
+    [CommonPasswordController::class, 'verify']
+)->middleware('throttle:5,1');
 
 Route::post('/logindata/save', [LoginDataController::class, 'save']);
 Route::get('/osonae', [OsonaeController::class, 'index']);
@@ -25,3 +31,6 @@ Route::get(
     '/kaigai/last-saved',
     [KaigaiController::class, 'lastSaved']
 );
+
+Route::post('/login', [ShozokuController::class, 'login'])
+    ->middleware('throttle:5,1');

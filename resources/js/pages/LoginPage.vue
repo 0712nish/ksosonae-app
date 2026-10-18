@@ -81,8 +81,12 @@ const pref = ref("")
 const tantoshaname = ref("")
 const password = ref("")
 const error = ref("")
+const loading = ref(false)
 
 const login = async () => {
+  error.value = ""
+
+  if (loading.value) return
 
   // 所属チェック
   if (!pref.value) {
@@ -96,27 +100,40 @@ const login = async () => {
     return
   }
 
+  // パスワードチェック
+  if (!password.value) {
+    error.value = "パスワードを入力してください"
+    return
+  }
+
+  loading.value = true
+
   try {
 
     // 所属情報取得
-    const res = await axios.get(
-      "/api/shozoku",
-      {
-        params: {
-          sname: pref.value
-        }
-      }
-    )
-
+    //const res = await axios.get(
+    //  "/api/shozoku",
+    //  {
+    //    params: {
+    //      sname: pref.value
+    //    }
+    //  }
+    //)
     // パスワード判定
-    if (
-      password.value !== "19700301" &&
-      password.value !== res.data.pass
-    ) {
-      error.value = "パスワードが違います"
-      return
-    }
+    //if (
+    //  password.value !== "19700301" &&
+    //  password.value !== res.data.pass
+    //) {
+    //  error.value = "パスワードが違います"
+    //  return
+    //}
 
+    // Laravel側で共通パスワード・所属別パスワードを判定
+    const res = await axios.post("/api/login", {
+      sname: pref.value,
+      tantoshaname: tantoshaname.value.trim(),
+      password: password.value
+    })
     // ログイン成功後にlocalStorageへ保存
     localStorage.setItem("loggedIn", "1")
     localStorage.setItem("shozokuid", res.data.no)
@@ -144,12 +161,20 @@ const login = async () => {
     }
 
   } catch (e) {
+    // 認証失敗
+    if (e.response?.status === 401) {
+      error.value = "所属またはパスワードが違います"
+    } else if (e.response?.status === 422) {
+      error.value = "入力内容を確認してください"
+    } else {
+      console.error("ログインエラー", e.response?.data ?? e.message)
+      error.value = "ログイン処理に失敗しました"
+    }
 
-    console.log(e.response?.data)
-
-    error.value = "ログイン処理に失敗しました"
+    } finally {
+      loading.value = false
+    }
   }
-}
 </script>
 
 <style scoped>

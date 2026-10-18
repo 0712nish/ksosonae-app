@@ -1513,7 +1513,7 @@ select:focus {
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
   z-index: 9999;
   min-width: 120px;
-  touch-action: manipulation;
+  touch-action: manipulation; /*スマホ用にCSSには、これのみ追加 */
 }
 
 .menu-item {
