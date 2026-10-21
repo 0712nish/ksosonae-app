@@ -16,7 +16,7 @@
         最終更新 {{ lastSavedAt }}<br>
         入力者：{{ lastSavedTantoshaname }} 
       </div>
-      <div class="report-subtitle rice-title">
+      <div class="report-subtitle">
         ◆野菜、果物、特産品
       </div>
       <div class="table-wrap" ref="tableWrap">
@@ -1067,6 +1067,12 @@ function printTable() {
   localStorage.setItem(
     "printSname",
     sname
+  )
+
+  // 印刷ページ用の年度
+  localStorage.setItem(
+    "printYear",
+    String(year.value ?? "")
   )
 
   const url = router.resolve({

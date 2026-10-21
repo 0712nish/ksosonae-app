@@ -448,7 +448,8 @@ function moveNext(e) {
 .rice-table {
   border-collapse: collapse;
   width: 1000px;
-  margin: 0 auto;
+  /*margin: 0 auto;*/
+  margin: 0;  /* 中央寄せを解除 */
 }
 
 .rice-table th,

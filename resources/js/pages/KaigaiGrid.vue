@@ -177,7 +177,6 @@
 
           </thead>
 
-
           <draggable
             v-model="rows"
             item-key="_key"
@@ -567,32 +566,7 @@
                     )
                   "
                 >
-<!--
-                  <input
-                    class="suryo-input"
-                    v-model="row.suryo"
-                    :disabled="!isGridEditable"
-                    @keydown="
-                      handleKey(
-                        $event,
-                        r,
-                        getColumnIndex('suryo')
-                      )
-                    "
 
-                    :ref="
-                      el =>
-                        setRef(
-                          el,
-                          r,
-                          getColumnIndex('suryo')
-                        )
-                    "
-
-                    @input="markDirty(row)"
-                    @blur="saveRow(row)"
-                  >
--->
                   <div class="suryo-inputs">
 
                     <!-- ① 数量：tanikosu -->
@@ -605,7 +579,10 @@
                       @input="e => limitDecimal(e, row, 'tanikosu')"
                       @keydown="handleKey($event, r, getColumnIndex('tanikosu'))"
                       :ref="el => setRef(el, r, getColumnIndex('tanikosu'))"
-                      @blur="saveRow(row)"
+                      @blur="
+                        row.tanikosu = formatDecimalZero(row.tanikosu);
+                        saveRow(row)
+                      "
                     >
 
                     <!-- ② 単位：tstani -->
@@ -624,13 +601,18 @@
                       </option>
                     </select>
 
-                      <!-- ×：数量または本数が入力されている場合に表示 -->
+                    <!-- ×：数量または本数が入力されている場合に表示 -->
                     <span
                       class="suryo-times"
-                      v-if="row.tanikosu !== '' && row.tanikosu != null
-                        && row.gokeisu !== '' && row.gokeisu != null"
+                      :class="{
+                        'is-hidden':
+                          row.tanikosu === '' ||
+                          row.tanikosu == null ||
+                          row.gokeisu === '' ||
+                          row.gokeisu == null
+                      }"
                     >×</span>
-                                      <!-- ③ 本数・個数：gokeisu -->
+                    <!-- ③ 本数・個数：gokeisu -->
                     <input
                       class="gokeisu-input"
                       type="text"
@@ -640,7 +622,10 @@
                       @input="e => limitDecimal(e, row, 'gokeisu')"
                       @keydown="handleKey($event, r, getColumnIndex('gokeisu'))"
                       :ref="el => setRef(el, r, getColumnIndex('gokeisu'))"
-                      @blur="saveRow(row)"
+                      @blur="
+                        row.gokeisu = formatDecimalZero(row.gokeisu);
+                        saveRow(row)
+                      "
                     >
 
                     <!-- ④ 単位：gstani -->
@@ -2323,6 +2308,28 @@ function limitDecimal(e, row, field) {
   markDirty(row)
 }
 
+const formatDecimalZero = (value) => {
+  if (value === null || value === undefined || value === '') {
+    return ''
+  }
+
+  const str = String(value).trim()
+
+  // 数値以外や入力途中の値は変更しない
+  if (!/^-?\d+(\.\d+)?$/.test(str)) {
+    return value
+  }
+
+  const num = Number(str)
+
+  if (!Number.isFinite(num)) {
+    return value
+  }
+
+  // 小数部分が 0 だけなら整数として表示
+  return Number.isInteger(num) ? String(num) : str.replace(/0+$/, '').replace(/\.$/, '')
+}
+
 </script>
 
 
@@ -2701,19 +2708,6 @@ thead tr:nth-child(2) th {
 
 }
 
-
-.suryo-header,
-.suryo-cell {
-
-  width: 280px;
-
-  min-width: 280px;
-
-  max-width: 280px;
-
-}
-
-
 /* =========================
    入力
 ========================= */
@@ -2822,105 +2816,91 @@ select {
 
 }
 
-/*
-.suryo-input {
 
-  width: 275px;
-
-  text-align: center;
-
-  font-size: 16px;
-
+/* 数量の列幅
+   合計数の列には「× 20px + 入力欄65px」を含める */
+.col-tanikosu {
+  width: 65px;
 }
-*/
-.col-tanikosu { width: 65px; }
-.col-tstani   { width: 60px; }
-.col-gokeisu  { width: 65px; }
-.col-gstani   { width: 60px; }
 
+.col-tstani {
+  width: 60px;
+}
+
+.col-gokeisu {
+  width: 85px;
+}
+
+.col-gstani {
+  width: 60px;
+}
+
+/* 数量の見出し・入力欄 */
+.suryo-header,
 .suryo-cell {
-  width: 250px;
-  min-width: 250px;
-  max-width: 250px;
-}
-
-.suryo-inputs {
-  display: grid;
-  grid-template-columns: 65px 60px 20px 65px 60px;
-  align-items: center;
-  width: 270px;
+  width: 275px;
+  min-width: 275px;
+  max-width: 275px;
   box-sizing: border-box;
 }
 
+/* 数量入力の5項目 */
+.suryo-inputs {
+  display: grid;
+  grid-template-columns: 65px 60px 20px 65px 60px;
+  width: 270px;
+  min-width: 270px;
+  box-sizing: border-box;
+  align-items: stretch;
+}
+
+/* 数量・合計数 */
+.tanikosu-input,
+.gokeisu-input {
+  display: block;
+  width: 65px;
+  min-width: 65px;
+  max-width: 65px;
+  height: 34px;
+  margin: 0;
+  padding: 5px;
+  box-sizing: border-box;
+  border: none;
+  text-align: center;
+  font-size: 18px;
+}
+
+/* 単位選択 */
+.tstani-select,
+.gstani-select {
+  display: block;
+  width: 60px;
+  min-width: 0;
+  height: 34px;
+  margin: 0;
+  padding: 2px;
+  box-sizing: border-box;
+  border: none;
+  text-align: center;
+  font-size: 15px;
+}
+
+/* × 記号 */
 .suryo-times {
   display: flex;
+  width: 20px;
+  min-width: 20px;
   align-items: center;
   justify-content: center;
-  width: 20px;
+  box-sizing: border-box;
   font-size: 16px;
   font-weight: bold;
   line-height: 1;
 }
 
-.suryo-detail {
-  display: grid;
-  grid-template-columns: 65px 60px 20px 65px 60px;
-  width: 270px;
-  box-sizing: border-box;
-  text-align: center;
-  font-size: 12px;
+.suryo-times.is-hidden {
+  visibility: hidden;
 }
-
-.tanikosu-input,
-.gokeisu-input {
-  width: 100%;
-  min-width: 0;
-  text-align: center;
-  font-size: 18px;
-}
-
-.tstani-select,
-.gstani-select {
-  width: 100%;
-  min-width: 0;
-  padding: 7px 2px;
-  text-align: center;
-  font-size: 15px;
-}
-
-.suryo-detail {
-  display: grid;
-  grid-template-columns: 65px 60px 65px 60px;
-  text-align: center;
-  font-size: 12px;
-}
-
-/* =========================
-   数量ヘッダー
-========================= */
-
-.quantity-header {
-
-  font-size: 18px;
-
-}
-
-
-.suryo-header {
-
-  font-size: 13px;
-
-  line-height: 1.5;
-
-}
-
-
-.suryo-header span {
-
-  font-size: 16px;
-
-}
-
 
 .correction-text {
 
@@ -2929,7 +2909,6 @@ select {
   font-size: 13px;
 
 }
-
 
 /* =========================
    フォーカス
@@ -3093,13 +3072,14 @@ select:focus {
 .suryo-title {
   font-size: 17px; /* 好みに応じて変更 */
   font-weight: bold;
-  line-height: 1.6;
+  line-height: 1.5;
   text-align: center;
 }
 
-.suryo-header {
-  font-size: 13px;
+.suryo-detail {
+  font-size: 17px;
   line-height: 1.5;
+  text-align: left;
 }
 
 </style>

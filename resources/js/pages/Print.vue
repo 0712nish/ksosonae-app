@@ -8,7 +8,13 @@
     <div class="report-subtitle">
       所属【 {{ sname }} 】
     </div>
-
+    <div class="print-save-info">
+      最終更新 {{ lastSavedAt }}<br>
+      入力者：{{ lastSavedTantoshaname }}
+    </div>
+    <div class="report-subtitle">
+      ◆野菜、果物、特産品
+    </div>
     <table>
         <thead>
         <tr>
@@ -22,17 +28,17 @@
         </tr>
 
         <tr>
-            <th>単位</th>
-            <th>合計</th>
-            <th>箱</th>
+            <th>1単位の内容量</th>
+            <th>1箱の数量</th>
+            <th>箱数</th>
 
-            <th>単位</th>
-            <th>合計</th>
-            <th>箱</th>
+            <th>1単位の内容量</th>
+            <th>1箱の数量</th>
+            <th>箱数</th>
 
-            <th>単位</th>
-            <th>合計</th>
-            <th>箱</th>
+            <th>1単位の内容量</th>
+            <th>1箱の数量</th>
+            <th>箱数</th>
         </tr>
         </thead>
         <tbody>
@@ -99,20 +105,52 @@
   </div>
 </template>
 
+
 <script setup>
+import axios from "axios"
 import { onMounted, ref, nextTick } from "vue"
 
 const rows = ref([])
 const sname = ref("")
 
+const lastSavedAt = ref("")
+const lastSavedTantoshaname = ref("")
+
+async function loadLastSaved() {
+  try {
+    const shozokuid = localStorage.getItem("shozokuid")
+
+    // 一覧画面で保存した年度があればそれを使用
+    const savedYear = localStorage.getItem("printYear")
+    const year = savedYear || new Date().getFullYear()
+
+    const res = await axios.get("/api/osonae/last-saved", {
+      params: {
+        shozokuid,
+        year
+      }
+    })
+
+    lastSavedAt.value = res.data?.updatedt ?? ""
+    lastSavedTantoshaname.value =
+      res.data?.tantoshaname ?? ""
+  } catch (e) {
+    console.error("最終更新情報取得失敗", e)
+    lastSavedAt.value = ""
+    lastSavedTantoshaname.value = ""
+  }
+}
+
 onMounted(async () => {
-
   rows.value = JSON.parse(
-    localStorage.getItem("printRows")
-  ) || []
+    localStorage.getItem("printRows") || "[]"
+  )
 
-  sname.value = localStorage.getItem("printSname") || ""
+  sname.value =
+    localStorage.getItem("printSname") || ""
 
+  // 最終更新情報を取得してから印刷
+  await loadLastSaved()
   await nextTick()
 
   window.print()
@@ -134,6 +172,7 @@ th,td{
   border:1px solid #000;
   padding:6px;
   font-size:12px;
+  text-align: center;
 }
 
 @media print {
@@ -146,4 +185,31 @@ th,td{
     size:A4 landscape;
   }
 }
+
+.report-title {
+  text-align: center;
+  font-size: 32px;
+  font-weight: bold;
+  letter-spacing: 4px;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.report-subtitle {
+  width: 100%;
+  text-align: left;
+  font-size: 25px;
+  font-weight: bold;
+  color: #020080;
+  margin-bottom: 18px;
+  letter-spacing: 1px;
+}
+
+.print-save-info {
+  text-align: right;
+  font-size: 11px;
+  color: #000;
+  margin-bottom: 8px;
+}
+
 </style>
