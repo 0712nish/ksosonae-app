@@ -22,21 +22,21 @@
             <th rowspan="2">区別</th>
             <th rowspan="2">品目</th>
 
-            <th colspan="3">20日</th>
-            <th colspan="3">25日</th>
-            <th colspan="3">28日</th>
+            <th colspan="3">20日締切</th>
+            <th colspan="3">25日締切</th>
+            <th colspan="3">28日締切</th>
         </tr>
 
         <tr>
-            <th>1単位の内容量</th>
+            <th>内容量</th>
             <th>1箱の数量</th>
             <th>箱数</th>
 
-            <th>1単位の内容量</th>
+            <th>内容量</th>
             <th>1箱の数量</th>
             <th>箱数</th>
 
-            <th>1単位の内容量</th>
+            <th>内容量</th>
             <th>1箱の数量</th>
             <th>箱数</th>
         </tr>

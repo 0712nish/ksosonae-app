@@ -1473,13 +1473,20 @@ function handleKey(
 
   }
 
+  /*
+   * input / textarea では矢印キーを
+   * 入力欄内のカーソル移動に使う
+   */
+  const isTextInput =
+    e.target.tagName?.toLowerCase() === "input" ||
+    e.target.tagName?.toLowerCase() === "textarea"
 
   /*
    * selectの場合は
    * ← → ↑ ↓ をブラウザ標準動作にする
    */
   if (
-    isSelect
+    isSelect || isTextInput
   ) {
 
     return

@@ -11,7 +11,7 @@ use App\Http\Controllers\CommonPasswordController;
 Route::post(
     '/verify-common-password',
     [CommonPasswordController::class, 'verify']
-)->middleware('throttle:5,1');
+)->middleware('throttle:5,10');
 
 Route::post('/logindata/save', [LoginDataController::class, 'save']);
 Route::get('/osonae', [OsonaeController::class, 'index']);

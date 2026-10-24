@@ -170,10 +170,9 @@ const login = async () => {
       console.error("ログインエラー", e.response?.data ?? e.message)
       error.value = "ログイン処理に失敗しました"
     }
-
-    } finally {
-      loading.value = false
-    }
+  } finally {
+    loading.value = false
+  }
   }
 </script>
 
