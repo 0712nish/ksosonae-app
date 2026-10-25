@@ -2583,7 +2583,7 @@ thead tr:nth-child(2) th {
 
 .col-area {
 
-  width: 80px;
+  width: 170px;
 
 }
 
@@ -2597,7 +2597,7 @@ thead tr:nth-child(2) th {
 
 .col-seisansha {
 
-  width: 110px;
+  width: 170px;
 
 }
 
@@ -2671,11 +2671,11 @@ thead tr:nth-child(2) th {
 .area-header,
 .area-cell {
 
-  width: 80px;
+  width: 170px;
 
-  min-width: 80px;
+  min-width: 170x;
 
-  max-width: 80px;
+  max-width: 170px;
 
 }
 
@@ -2695,11 +2695,11 @@ thead tr:nth-child(2) th {
 .seisansha-header,
 .seisansha-cell {
 
-  width: 162px;
+  width: 170px;
 
-  min-width: 162px;
+  min-width: 170px;
 
-  max-width: 162px;
+  max-width: 170px;
 
 }
 
@@ -2790,9 +2790,9 @@ select {
 
 .area-input {
 
-  width: 75px;
+  width: 164px;
 
-  text-align: center;
+  text-align: left;
 
 }
 
@@ -2808,7 +2808,7 @@ select {
 
 .seisansha-input {
 
-  width:158px;
+  width:164px;
 
   text-align: left;
 
