@@ -2597,7 +2597,7 @@ thead tr:nth-child(2) th {
 
 .col-seisansha {
 
-  width: 170px;
+  width: 180px;
 
 }
 
@@ -2695,11 +2695,11 @@ thead tr:nth-child(2) th {
 .seisansha-header,
 .seisansha-cell {
 
-  width: 170px;
+  width: 180px;
 
-  min-width: 170px;
+  min-width: 180px;
 
-  max-width: 170px;
+  max-width: 180px;
 
 }
 
@@ -2808,7 +2808,7 @@ select {
 
 .seisansha-input {
 
-  width:164px;
+  width:174px;
 
   text-align: left;
 
