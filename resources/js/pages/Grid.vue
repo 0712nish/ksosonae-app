@@ -348,7 +348,7 @@ const quantityColumns = [
 const kubetsuOptions = ["野菜", "果物", "特産"]
 const unitOptions1 = ["g", "ml", "L", "枚"]
 const unitOptions2 = ["kg", "g", "個"] //野菜・果物
-const unitOptions2x = ["袋", "本", "個"] //特産
+const unitOptions2x = ["袋", "本", "個", "kg"] //特産
 const unitOptions3 = ["箱"]
 
 const menu = ref({
