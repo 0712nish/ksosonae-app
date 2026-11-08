@@ -31,8 +31,8 @@
   <tr>
     <th></th>
     <th></th>
-    <th>数量</th>
-    <th>左記以外×数量</th>
+    <th class="header1">数量</th>
+    <th><div class="header1">古代米等　入力欄</div><div class="header2">入力例）古代米（黒米）10kg ｘ 1袋<br>　　　 古代米（赤米）5kg ｘ 1袋<br>　　　　　　古代米（もち・緑米）20kg ｘ 1袋</div></th>
   </tr>
 
   <tr>
@@ -411,6 +411,17 @@ function moveNext(e) {
   font-size: 25px;
   font-weight: bold;
   color: #020080;
+}
+
+.header1 {
+  font-size: 18px;
+  font-weight: bold;
+  color: #000000;
+}
+
+.header2{
+  font-size: 18px;
+  color: #0755ffee;
 }
 
 .print-btn, .back-btn {
