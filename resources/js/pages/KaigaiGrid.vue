@@ -1043,17 +1043,18 @@ async function insertRow(
   index
 ) {
 
-  menu.value.visible =
-    false
+  const newRow = createRow(index + 1)
 
-  rows.value.splice(
-    index,
-    0,
-    createRow(index + 1)
-  )
+  rows.value.splice(index, 0, newRow)
 
   renumberRows()
 
+  menu.value.visible = false
+
+  // 既存行のNoをDBに反映 追加2026.11.9
+  for (const row of rows.value) {
+    await saveRow(row, true)
+  }
 }
 
 /* =========================
