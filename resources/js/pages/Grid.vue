@@ -19,6 +19,12 @@
       <div class="report-subtitle">
         ◆野菜、果物、特産品
       </div>
+      <div class="chui">
+        　　入力期間は、11月13日9時～28日24時（締切①11/20 ②11/25 ③11/28）です。<br>
+        　　28日締切には、必ず入力してください。<br>
+        　　20日締切、25日締切に入力されていても、28日締切に何も入力されていない場合は<br>
+        　　お供えを取り下げたものと見なします。
+      </div>
       <div class="table-wrap" ref="tableWrap">
         <table>
           <colgroup>
@@ -212,7 +218,13 @@
                             ['野菜', '果物'].includes(row.kubetsu)
                           )
                       }"
-                      @keydown="handleKey($event, r, getColIndex(qi, 2))"
+                      @keydown="e => {
+                        if (e.key === '.') {
+                          e.preventDefault()
+                          return
+                        }
+                        handleKey(e, r, getColIndex(qi, 2))
+                      }"
                       :ref="el => setRef(el, r, getColIndex(qi, 2))"
                       @focus="$event.target.select()"
                       @blur="saveRow(row)"
@@ -1603,7 +1615,17 @@ select:disabled {
   font-size: 25px;
   font-weight: bold;
   color: #020080;
-  margin-bottom: 18px;
+  margin-bottom: 3px;
+  letter-spacing: 1px;
+}
+
+.chui {
+  width: 100%;
+  text-align: left;
+  font-size: 20px;
+  font-weight: bold;
+  color: #ff0000;
+  margin-bottom: 3px;
   letter-spacing: 1px;
 }
 
