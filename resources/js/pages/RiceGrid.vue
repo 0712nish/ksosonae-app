@@ -23,9 +23,11 @@
     </div>
 
     <div class="report-subtitle rice-title">
-      ◆お米
+      ◆お米 
     </div>
-
+    <div class="chui">
+      　　入力期間 11月13日9時～15日（初回締切 11／15）その後は、28日24時まで、変更可能 
+    </div>
 <table class="rice-table">
 
   <tr>
@@ -411,6 +413,12 @@ function moveNext(e) {
   font-size: 25px;
   font-weight: bold;
   color: #020080;
+}
+
+.chui {
+  font-size: 25px;
+  font-weight: bold;
+  color: #ff0000;
 }
 
 .header1 {

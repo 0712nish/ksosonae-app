@@ -348,7 +348,7 @@ const quantityColumns = [
 const kubetsuOptions = ["野菜", "果物", "特産"]
 const unitOptions1 = ["g", "ml", "L", "枚"]
 const unitOptions2 = ["kg", "g", "個"] //野菜・果物
-const unitOptions2x = ["袋", "本", "個", "kg"] //特産
+const unitOptions2x = ["袋", "本", "個", "kg", "箱"] //特産
 const unitOptions3 = ["箱"]
 
 const menu = ref({
@@ -396,13 +396,11 @@ function cancelRowLongPress() {
 }
 
 async function insertRow(index) {
-  rows.value.splice(index, 0, createRow(index + 1))
+  const newRow = createRow(index + 1)
+
+  rows.value.splice(index, 0, newRow)
 
   renumberRows()
-
-  //for (const row of rows.value) {
-  //  await saveRow(row, true)
-  //}
 
   menu.value.visible = false
 
@@ -1191,7 +1189,23 @@ window.addEventListener("click", () => {
   menu.value.visible = false
 })
 
-function goBack() {
+async function goBack() {
+
+  // 未入力の空行を除去
+  rows.value = rows.value.filter(row =>
+    row.kubetsu || row.hinmoku
+  )
+
+  // Noを振り直す
+  renumberRows()
+
+  // DBに登録済みの行のNoを更新
+  for (const row of rows.value) {
+    if (row.autono) {
+      await saveRow(row, true)
+    }
+  }
+
   router.back()
 }
 
