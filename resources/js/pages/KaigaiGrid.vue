@@ -9,7 +9,7 @@
           class="back-btn"
           @click="goBack"
         >
-          戻る
+          ログアウト
         </button>
 
         <div class="title-area">
@@ -715,7 +715,6 @@
   </div>
 </template>
 
-
 <script setup>
 
 import axios from "axios"
@@ -723,7 +722,7 @@ import axios from "axios"
 import {
   ref,
   nextTick,
-  onMounted
+  onMounted, onUnmounted
 } from "vue"
 
 import {
@@ -733,19 +732,15 @@ import {
 
 import draggable from "vuedraggable"
 
-
 /* =========================
    Router
 ========================= */
-
 const route = useRoute()
 const router = useRouter()
-
 
 /* =========================
    基本情報
 ========================= */
-
 const sname =
   route.query.sname ||
   localStorage.getItem("pref")
@@ -764,14 +759,12 @@ const isGridEditable = ref(false)
 /* =========================
    香港判定
 ========================= */
-
 /*
  * 所属が「香港」の場合だけ
  * 中国語列を表示する
  */
 const isHongKong =
   String(sname ?? "").trim() === "香港"
-
 
 /*
  * 表示される列の一覧
@@ -822,7 +815,6 @@ const visibleColumns = isHongKong
       "gstani"
     ]
 
-
 /*
  * 列名から現在表示されている
  * 列番号を取得
@@ -835,7 +827,6 @@ function getColumnIndex(columnName) {
 
 }
 
-
 /*
  * 現在表示されている入力列数
  *
@@ -845,11 +836,9 @@ function getColumnIndex(columnName) {
 const totalCols =
   visibleColumns.length
 
-
 /* =========================
    最終更新
 ========================= */
-
 const lastSavedAt =
   ref("")
 
@@ -861,11 +850,9 @@ const lastSavedTantoshaname =
 const isInitializing =
   ref(true)
 
-
 /* =========================
    区別
 ========================= */
-
 const kubetsuOptions = [
   "お米",
   "野菜",
@@ -884,7 +871,6 @@ const unitOptions2 = [
 /* =========================
    右クリックメニュー
 ========================= */
-
 const menu = ref({
 
   visible: false,
@@ -896,7 +882,6 @@ const menu = ref({
   rowIndex: null
 
 })
-
 
 const markMenu = ref({
 
@@ -912,6 +897,18 @@ const markMenu = ref({
 
 })
 
+//2026.11.11追加
+const handleBeforeUnload = (event) => {
+    event.preventDefault()
+    event.returnValue = ''
+}
+onMounted(() => {
+    window.addEventListener('beforeunload', handleBeforeUnload)
+})
+onUnmounted(() => {
+    window.removeEventListener('beforeunload', handleBeforeUnload)
+})
+//↑2026.11.11追加
 
 function openMarkMenu(
   e,
@@ -936,7 +933,6 @@ function openMarkMenu(
 
 }
 
-
 function openContextMenu(
   e,
   rowIndex
@@ -956,11 +952,9 @@ function openContextMenu(
 
 }
 
-
 /* =========================
    行生成
 ========================= */
-
 // 画面表示用の行キー
 let rowKeyCounter = 0
 
@@ -1016,11 +1010,9 @@ const rows = ref([
   createRow(1)
 ])
 
-
 /* =========================
    行番号
 ========================= */
-
 function renumberRows() {
 
   rows.value.forEach(
@@ -1034,11 +1026,9 @@ function renumberRows() {
 
 }
 
-
 /* =========================
    行挿入
 ========================= */
-
 async function insertRow(
   index
 ) {
@@ -1060,7 +1050,6 @@ async function insertRow(
 /* =========================
    行削除
 ========================= */
-
 async function confirmDelete(index) {
 
   // 行操作メニューを閉じる
@@ -1162,7 +1151,6 @@ async function deleteRowDB(
 /* =========================
    セル参照
 ========================= */
-
 const cellRefs =
   ref([])
 
@@ -1232,11 +1220,9 @@ function focusCell(
 
 }
 
-
 /* =========================
    次へ
 ========================= */
-
 function moveNext(
   r,
   c
@@ -1285,11 +1271,9 @@ function moveNext(
 
 }
 
-
 /* =========================
    前へ
 ========================= */
-
 function movePrev(
   r,
   c
@@ -1330,11 +1314,9 @@ function movePrev(
 
 }
 
-
 /* =========================
    上下
 ========================= */
-
 function moveVertical(
   r,
   c,
@@ -1353,7 +1335,6 @@ function moveVertical(
 
   }
 
-
   /*
    * 下の行が存在しなければ
    * 新しい行を作成
@@ -1369,7 +1350,6 @@ function moveVertical(
     )
 
   }
-
 
   /*
    * 同じ表示列番号へ移動
@@ -1391,7 +1371,6 @@ function moveVertical(
 /* =========================
    キー操作
 ========================= */
-
 function handleKey(
   e,
   r,
@@ -1410,7 +1389,6 @@ function handleKey(
   /* =========================
      Enter
   ========================= */
-
   if (
     e.key === "Enter"
   ) {
@@ -1444,7 +1422,6 @@ function handleKey(
   /* =========================
      Tab
   ========================= */
-
   if (
     e.key === "Tab"
   ) {
@@ -1498,7 +1475,6 @@ function handleKey(
   /* =========================
      → 次のセル
   ========================= */
-
   if (
     e.key === "ArrowRight"
   ) {
@@ -1518,7 +1494,6 @@ function handleKey(
   /* =========================
      ← 前のセル
   ========================= */
-
   if (
     e.key === "ArrowLeft"
   ) {
@@ -1538,7 +1513,6 @@ function handleKey(
   /* =========================
      ↓ 下のセル
   ========================= */
-
   if (
     e.key === "ArrowDown"
   ) {
@@ -1559,7 +1533,6 @@ function handleKey(
   /* =========================
      ↑ 上のセル
   ========================= */
-
   if (
     e.key === "ArrowUp"
   ) {
@@ -1578,11 +1551,9 @@ function handleKey(
 
 }
 
-
 /* =========================
    DB → Vue
 ========================= */
-
 function setRowsFromDB(
   data
 ) {
@@ -1673,17 +1644,6 @@ function setRowsFromDB(
       })
     )
 
-
-  /*
-   * DBにデータがなければ
-   * 新規1行
-   */
-  //if (rows.value.length === 0) {
-  //  rows.value = [
-  //    createRow(1)
-  //  ]
-  //}
-
   /*
    * 常に最後に
    * 新規入力用の空行を1行残す
@@ -1700,7 +1660,6 @@ function setRowsFromDB(
 /* =========================
    保存
 ========================= */
-
 async function saveRow(
   row,
   force = false
@@ -1870,11 +1829,9 @@ async function saveRow(
 
 }
 
-
 /* =========================
    ドラッグ終了
 ========================= */
-
 async function handleDragEnd() {
 
   /*
@@ -1935,11 +1892,9 @@ async function handleDragEnd() {
 
 }
 
-
 /* =========================
    印刷
 ========================= */
-
 function printTable() {
 
   localStorage.setItem(
@@ -1969,11 +1924,9 @@ function printTable() {
 
 }
 
-
 /* =========================
    戻る
 ========================= */
-
 async function goBack() {
 
   // 未入力の空行を除去
@@ -1995,11 +1948,9 @@ async function goBack() {
 
 }
 
-
 /* =========================
    最終更新取得
 ========================= */
-
 async function loadLastSaved() {
 
   try {
@@ -2040,11 +1991,6 @@ async function loadLastSaved() {
   }
 
 }
-
-
-/* =========================
-   初期処理
-========================= */
 
 /* =========================
    初期処理
@@ -2359,486 +2305,276 @@ const formatDecimalZero = (value) => {
 <style scoped>
 
 .grid {
-
   padding: 20px;
-
   display: flex;
-
   justify-content: center;
-
   width: 100%;
-
   box-sizing: border-box;
-
   min-height: 100vh;
-
   min-height: 100dvh;
-
   overflow: hidden;
-
 }
-
 
 .content-area {
-
   display: flex;
-
   flex-direction: column;
-
   align-items: stretch;
-
   width: 100%;
-
   min-width: 0;
-
   min-height: 0;
-
 }
-
 
 /* =========================
    ヘッダー
 ========================= */
-
 .header-area {
-
   display: flex;
-
   justify-content: space-between;
-
   align-items: flex-start;
-
   margin-bottom: 15px;
-
 }
-
 
 .title-area {
-
   flex: 1;
-
 }
-
 
 .report-title {
-
   text-align: center;
-
   font-size: 32px;
-
   font-weight: bold;
-
   letter-spacing: 4px;
-
   margin-bottom: 16px;
-
   color: #333;
-
 }
-
 
 .report-subtitle {
-
   width: 100%;
-
   text-align: left;
-
   font-size: 25px;
-
   font-weight: bold;
-
   color: #020080;
-
   margin-bottom: 18px;
-
   letter-spacing: 1px;
-
 }
-
 
 .save-info {
-
   text-align: right;
-
   font-size: 11px;
-
   color: #000;
-
   margin-bottom: 2px;
-
 }
-
 
 /* =========================
    テーブル
 ========================= */
-
 .table-wrap {
-
   overflow-x: auto;
-
   overflow-y: auto;
-
   width: 100%;
-
   max-width: 100%;
-
   max-height:
     calc(100vh - 80px);
-
   max-height:
     calc(100dvh - 80px);
-
   min-width: 0;
-
   min-height: 0;
-
   -webkit-overflow-scrolling: touch;
-
   touch-action:
     pan-x pan-y;
-
 }
 
 
 table {
-
   border-collapse: separate;
-
   border-spacing: 0;
-
   table-layout: fixed;
-
   width: max-content;
-
   display: inline-table;
-
 }
-
 
 th,
 td {
-
   border: 1px solid #999;
-
   text-align: center;
-
   overflow: visible;
-
   white-space: nowrap;
-
   padding: 0;
-
 }
-
 
 /* =========================
    ヘッダー固定
 ========================= */
-
 thead th {
-
   position: sticky;
-
   background: #fff;
-
 }
-
 
 thead tr:first-child th {
-
   top: 0;
-
   z-index: 20;
-
   height: 40px;
-
 }
-
 
 thead tr:nth-child(2) th {
-
   top: 40px;
-
   z-index: 19;
-
 }
-
 
 /* =========================
    列幅
 ========================= */
-
 .col-no {
-
   width: 40px;
-
 }
-
 
 .col-kubetsu {
-
   width: 45px;
-
 }
-
 
 .col-hinmoku {
-
   width: 210px;
-
 }
-
 
 .col-chugokugo {
-
   width: 120px;
-
 }
-
 
 .col-area {
-
   width: 170px;
-
 }
-
 
 .col-jissiyear {
-
   width: 100px;
-
 }
-
 
 .col-seisansha {
-
   width: 180px;
-
 }
-
 
 .col-shinjakb {
-
   width: 70px;
-
 }
-
-/*
-.col-suryo {
-
-  width: 235px;
-
-}
-*/
 
 /* =========================
    固定幅
 ========================= */
-
 .no-header,
 .no-cell {
-
   width: 40px;
-
   min-width: 40px;
-
   max-width: 40px;
-
 }
-
 
 .kubetsu-header,
 .kubetsu-cell {
-
   width: 48px;
-
   min-width: 48px;
-
   max-width: 48px;
-
 }
-
 
 .hinmoku-header,
 .hinmoku-cell {
-
   width: 210px;
-
   min-width: 210px;
-
   max-width: 210px;
-
 }
-
 
 .chugokugo-header,
 .chugokugo-cell {
-
   width: 120px;
-
   min-width: 120px;
-
   max-width: 120px;
-
 }
-
 
 .area-header,
 .area-cell {
-
   width: 170px;
-
   min-width: 170x;
-
   max-width: 170px;
-
 }
-
 
 .jissiyear-header,
 .jissiyear-cell {
-
   width: 100px;
-
   min-width: 100px;
-
   max-width: 100px;
-
 }
-
 
 .seisansha-header,
 .seisansha-cell {
-
   width: 180px;
-
   min-width: 180px;
-
   max-width: 180px;
-
 }
-
 
 .shinjakb-header,
 .shinjakb-cell {
-
   width: 70px;
-
   min-width: 70px;
-
   max-width: 70px;
-
 }
 
 /* =========================
    入力
 ========================= */
-
 input,
 select {
-
   background-color: white;
-
   font-size: 15px;
-
 }
-
 
 input {
-
   border: none;
-
   padding: 5px;
-
   box-sizing: border-box;
-
 }
-
 
 select {
-
   border: none;
-
   padding: 7px;
-
   box-sizing: border-box;
-
   appearance: none;
-
   -webkit-appearance: none;
-
   -moz-appearance: none;
-
 }
-
 
 /* =========================
    各入力
 ========================= */
-
 .kubetsu-select {
-
   width: 43px;
-
   text-align: center;
-
 }
-
 
 .hinmoku-input {
-
   width: 204px;
-
   text-align: left;
-
 }
-
 
 .chugokugo-input {
-
   width: 115px;
-
   text-align: left;
-
 }
-
 
 .area-input {
-
   width: 164px;
-
   text-align: left;
-
 }
-
 
 .jissiyear-input {
-
   width: 95px;
-
   text-align: center;
-
 }
-
 
 .seisansha-input {
-
   width:174px;
-
   text-align: left;
-
 }
-
 
 .shinjakb-select {
-
   width: 65px;
-
   text-align: center;
-
 }
-
 
 /* 数量の列幅
    合計数の列には「× 20px + 入力欄65px」を含める */
@@ -2926,107 +2662,67 @@ select {
 }
 
 .correction-text {
-
   color: red;
-
   font-size: 13px;
-
 }
 
 /* =========================
    フォーカス
 ========================= */
-
 input:focus,
 select:focus {
-
   outline: none;
-
   box-shadow:
     inset 0 0 0 2px #4cafef;
-
 }
-
 
 /* =========================
    右クリックメニュー
 ========================= */
-
 .context-menu {
 
   position: fixed;
-
   background: white;
-
   border: 1px solid #ccc;
-
   box-shadow:
     0 4px 10px
     rgba(0, 0, 0, 0.15);
-
   z-index: 9999;
-
   min-width: 120px;
-
 }
-
 
 .menu-item {
-
   padding: 10px 14px;
-
   cursor: pointer;
-
 }
-
 
 .menu-item:hover {
-
   background: #f0f4ff;
-
 }
-
 
 .menu-item.danger:hover {
-
   background: #ffe5e5;
-
   color: #c00;
-
 }
-
 
 /* =========================
    ドラッグ
 ========================= */
-
 .no-cell {
-
   cursor: grab;
-
 }
-
 
 .no-cell:active {
-
   cursor: grabbing;
-
 }
-
 
 .sortable-chosen td {
-
   background: #fce2e2;
-
 }
-
 
 .sortable-drag td {
-
   background: #8cffd3;
-
 }
-
 
 /* =========================
    ボタン
@@ -3034,63 +2730,39 @@ select:focus {
 
 .print-btn,
 .back-btn {
-
   padding: 8px 20px;
-
   background: #f5f5f5;
-
   border: 1px solid #bbb;
-
   border-radius: 4px;
-
   font-size: 16px;
-
   font-weight: bold;
-
   cursor: pointer;
-
 }
-
 
 .print-btn:hover,
 .back-btn:hover {
-
   background: #eaeaea;
-
 }
-
 
 /* =========================
    マーカー
 ========================= */
-
 .marked {
-
   background-color:
     rgb(255, 255, 255) !important;
-
   color: white;
-
 }
-
 
 .marked input,
 .marked select {
-
   background-color:
     rgb(255, 178, 195) !important;
-
   color: white;
-
 }
-
 
 .marked input::placeholder {
-
   color: white;
-
 }
-
 
 .suryo-title {
   font-size: 17px; /* 好みに応じて変更 */

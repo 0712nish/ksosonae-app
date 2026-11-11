@@ -326,7 +326,9 @@
 import axios from "axios"
 //import { onMounted } from "vue"
 //import { ref, nextTick } from "vue"
-import { onMounted, onBeforeUnmount, ref, nextTick } from "vue"
+//import { onMounted, onBeforeUnmount, ref, nextTick } from "vue"
+import { onMounted, onBeforeUnmount, ref, nextTick, onUnmounted } from 'vue'
+
 import { useRoute, useRouter } from "vue-router"
 /*import { useRoute } from "vue-router"*/
 import draggable from "vuedraggable"
@@ -369,6 +371,18 @@ const menu = ref({
   y: 0,
   rowIndex: null
 })
+//2026.11.11追加
+const handleBeforeUnload = (event) => {
+    event.preventDefault()
+    event.returnValue = ''
+}
+onMounted(() => {
+    window.addEventListener('beforeunload', handleBeforeUnload)
+})
+onUnmounted(() => {
+    window.removeEventListener('beforeunload', handleBeforeUnload)
+})
+//↑2026.11.11追加
 
 function openContextMenu(e, rowIndex) {
   menu.value.visible = true
