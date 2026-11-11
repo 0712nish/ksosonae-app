@@ -21,9 +21,9 @@
       </div>
       <div class="chui">
         　　入力期間は、11月13日9時～28日24時（締切①11/20 ②11/25 ③11/28）です。<br>
-        　　28日締切には、必ず入力してください。<br>
-        　　20日締切、25日締切に入力されていても、28日締切に何も入力されていない場合は<br>
-        　　お供えを取り下げたものと見なします。
+        　　欄（28日締切）には、必ず入力してください。<br>
+        　　欄（20日締切と25日締切）に入力されていても<br>
+        　　欄（28日締切）に何も入力されていない場合は、お供えを取り下げたものと見なします。
       </div>
       <div class="table-wrap" ref="tableWrap">
         <table>
@@ -1205,7 +1205,7 @@ async function goBack() {
 
   // 未入力の空行を除去
   rows.value = rows.value.filter(row =>
-    row.kubetsu || row.hinmoku
+    row.kubetsu && row.hinmoku
   )
 
   // Noを振り直す

@@ -1974,7 +1974,22 @@ function printTable() {
    戻る
 ========================= */
 
-function goBack() {
+async function goBack() {
+
+  // 未入力の空行を除去
+  rows.value = rows.value.filter(row =>
+    row.kubetsu && row.hinmoku
+  )
+
+  // Noを振り直す
+  renumberRows()
+
+  // DBに登録済みの行のNoを更新
+  for (const row of rows.value) {
+    if (row.autono) {
+      await saveRow(row, true)
+    }
+  }
 
   router.back()
 
