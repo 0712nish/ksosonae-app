@@ -11,7 +11,6 @@
         </div>
         <button class="print-btn" @click="printTable">印刷</button>
       </div>
-
       <div class="save-info">
         最終更新 {{ lastSavedAt }}<br>
         入力者：{{ lastSavedTantoshaname }} 
@@ -20,10 +19,12 @@
         ◆野菜、果物、特産品
       </div>
       <div class="chui">
+        　　11月13日9時には、これまでの練習内容を全部クリアして、昨年お供えされた品目の状態に初期化します。<br>
         　　入力期間は、11月13日9時～28日24時（締切①11/20 ②11/25 ③11/28）です。<br>
-        　　欄（28日締切）には、必ず入力してください。<br>
-        　　欄（20日締切と25日締切）に入力されていても<br>
-        　　欄（28日締切）に何も入力されていない場合は、お供えを取り下げたものと見なします。
+        　　欄（28日締切）には、お供えする　全品目　に関して、必ず入力してください。<br>
+        　　欄（20日締切と25日締切）に入力されていても、<br>
+        　　欄（28日締切）に何も入力されていない　品目　は、お供えを取り下げたものと見なします。<br>
+        　　変更がない場合は、【変更なし】ボタンをクリックすると前回締切の入力値を自動入力できますのでご活用ください。
       </div>
       <div class="table-wrap" ref="tableWrap">
         <table>
@@ -1619,7 +1620,7 @@ select:disabled {
   font-size: 32px;
   font-weight: bold;
   letter-spacing: 4px;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
   color: #333;
 }
 
@@ -1707,7 +1708,7 @@ select:disabled {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 15px;
+  margin-bottom: 1px;
 }
 
 .title-area {
